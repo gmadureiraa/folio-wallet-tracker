@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -13,9 +8,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Folio — Your Crypto Portfolio Tracker",
+  title: "folio. — Crypto Portfolio Tracker",
   description:
-    "Track your entire crypto portfolio across 8+ blockchains. Multi-wallet, DeFi positions, PnL tracking, and smart alerts.",
+    "Track your entire crypto portfolio across 16 blockchains. Real-time prices, DeFi, PnL.",
+};
+
+export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
@@ -27,7 +25,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistMono.variable} h-full`}
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      }}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
