@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { smartFetch, CG_BASE } from '../lib/api'
+import { getCachedPrices, isPricesCacheStale, setCachedPrices } from '../lib/cache'
 
 const ALL_IDS = [
   'ethereum', 'solana', 'bitcoin',
@@ -27,9 +28,11 @@ export interface PriceData {
 const REFRESH_MS = 90_000
 
 export function usePrices() {
-  const [prices, setPrices] = useState<Record<string, PriceData>>({})
-  const [loading, setLoading] = useState(true)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  // Hydrate from cache instantly so the UI has data on first render
+  const cachedPrices = getCachedPrices<Record<string, PriceData>>()
+  const [prices, setPrices] = useState<Record<string, PriceData>>(cachedPrices ?? {})
+  const [loading, setLoading] = useState(!cachedPrices)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(cachedPrices ? new Date() : null)
   const timerRef = useRef<number | null>(null)
 
   const fetch_ = useCallback(async () => {
@@ -58,6 +61,7 @@ export function usePrices() {
         }
       }
       setPrices(map)
+      setCachedPrices(map)
       setLastUpdated(new Date())
     } catch {
       // keep previous prices
@@ -67,7 +71,12 @@ export function usePrices() {
   }, [])
 
   useEffect(() => {
-    fetch_()
+    // If cache is fresh, skip the initial fetch (timer will handle next refresh)
+    if (!isPricesCacheStale()) {
+      setLoading(false)
+    } else {
+      fetch_()
+    }
     timerRef.current = window.setInterval(fetch_, REFRESH_MS)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [fetch_])

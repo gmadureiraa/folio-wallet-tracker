@@ -61,7 +61,7 @@ export function GasTracker({ gasEstimates, loading }: Props) {
     <div className="p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-[#0A0A0A]">Gas Tracker</h2>
+          <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">Gas Tracker</h2>
           <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>
             Real-time gas prices across 8 chains
           </p>

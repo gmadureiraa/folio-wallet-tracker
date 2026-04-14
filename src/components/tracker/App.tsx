@@ -28,6 +28,7 @@ import { fetchRealPortfolio } from './lib/realPortfolio'
 import { fetchRealNFTs } from './lib/realNFTs'
 import { fetchRealDefiPositions } from './lib/realDefi'
 import { ScanProgress, type ScanStep } from './components/ScanProgress'
+import { getCachedPortfolio, isPortfolioCacheStale, setCachedPortfolio } from './lib/cache'
 import type { PageId, WalletPortfolio, Transaction, NFTItem, DeFiPosition, TokenPosition, ChainId } from './types'
 
 interface AppProps {
@@ -46,7 +47,9 @@ function App({ initialAddress }: AppProps) {
   const { yields, protocols, loading: marketLoading } = useDefiData()
 
   // Real portfolio data fetched from blockchain (multi-chain scan)
-  const [portfolios, setPortfolios] = useState<WalletPortfolio[]>([])
+  // Hydrate from cache for instant display
+  const cachedPortfolios = useMemo(() => getCachedPortfolio<WalletPortfolio[]>(), [])
+  const [portfolios, setPortfolios] = useState<WalletPortfolio[]>(cachedPortfolios ?? [])
   const [portfolioLoading, setPortfolioLoading] = useState(false)
 
   // Scan progress tracker
@@ -148,6 +151,7 @@ function App({ initialAddress }: AppProps) {
       setScanStatus('Portfolio ready!')
 
       setPortfolios(results)
+      setCachedPortfolio(results)
 
       // Hide after 1.5s
       setTimeout(() => setScanVisible(false), 1500)
@@ -159,8 +163,13 @@ function App({ initialAddress }: AppProps) {
   }, [wallets, priceMap])
 
   // Auto-fetch on mount and when wallets change
+  // If we have fresh cache, skip the scan; if stale, refresh in background
   useEffect(() => {
     if (Object.keys(priceMap).length > 0 || wallets.length > 0) {
+      if (cachedPortfolios && cachedPortfolios.length > 0 && !isPortfolioCacheStale()) {
+        // Cache is fresh — no need to re-scan
+        return
+      }
       fetchPortfolios()
     }
   }, [wallets.length, Object.keys(priceMap).length])

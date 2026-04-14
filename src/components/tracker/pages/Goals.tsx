@@ -274,7 +274,7 @@ export function Goals({ portfolios, totalValue }: GoalsProps) {
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#0A0A0A] flex items-center gap-2">
+          <h1 className="text-xl font-bold text-[#0A0A0A] font-serif flex items-center gap-2">
             <Target size={20} style={{ color: '#627EEA' }} />
             Goals & Allocation
           </h1>

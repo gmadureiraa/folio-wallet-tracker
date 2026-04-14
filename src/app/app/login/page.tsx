@@ -95,18 +95,18 @@ export default function LoginPage() {
         />
       </div>
 
+      {/* Login art decoration */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/folio-login-art.png"
+        alt=""
+        aria-hidden="true"
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-[420px] pointer-events-none opacity-30 hidden lg:block"
+      />
+
       {/* Logo */}
       <div className="relative z-10 flex items-center gap-2.5 mb-10">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(98,126,234,0.2) 0%, rgba(153,69,255,0.2) 100%)",
-            border: "1px solid rgba(98,126,234,0.3)",
-          }}
-        >
-          <Wallet size={18} style={{ color: "#627EEA" }} />
-        </div>
+        <img src="/folio-logo-icon.png" className="w-12 h-12" alt="Folio" />
         <span className="text-2xl font-bold tracking-tight font-serif text-gray-900">
           Folio
         </span>
@@ -171,7 +171,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium transition-colors hover:bg-gray-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-gray-900 text-white text-sm font-medium transition-colors hover:bg-gray-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <Loader2 size={14} className="animate-spin" />
@@ -198,7 +198,7 @@ export default function LoginPage() {
           <button
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {googleLoading ? (
               <Loader2 size={14} className="animate-spin text-gray-400" />
@@ -212,7 +212,7 @@ export default function LoginPage() {
 
           <button
             onClick={handleWallet}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
           >
             <Wallet size={16} className="text-gray-400" />
             Connect Wallet

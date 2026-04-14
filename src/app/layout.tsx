@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "Folio — Multi-Chain Wallet Tracker | Track Every Token",
   description:
     "Folio scans 16 blockchains, tracks real-time prices, calculates PnL, and shows your complete crypto portfolio. NFTs included. Read-only. No keys required.",
+  icons: { icon: "/folio-logo-icon.png" },
   openGraph: {
     title: "Folio — Multi-Chain Wallet Tracker",
     description: "Track every token across every chain. Real-time prices, PnL, NFTs. Read-only, no keys required.",

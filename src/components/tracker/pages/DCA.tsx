@@ -213,7 +213,7 @@ export function DCA({ priceMap }: DCAProps) {
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#0A0A0A] flex items-center gap-2">
+          <h1 className="text-xl font-bold text-[#0A0A0A] font-serif flex items-center gap-2">
             <TrendingUp size={20} style={{ color: '#627EEA' }} />
             DCA Planner
           </h1>

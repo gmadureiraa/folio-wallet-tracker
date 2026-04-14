@@ -104,15 +104,7 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
     >
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #F0F0F0' }}>
         <div className="flex items-center gap-3">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, rgba(98,126,234,0.25) 0%, rgba(153,69,255,0.25) 100%)',
-              border: '1px solid rgba(98,126,234,0.35)',
-            }}
-          >
-            <Wallet size={14} style={{ color: '#627EEA' }} />
-          </div>
+          <img src="/folio-logo-icon.png" className="w-7 h-7 flex-shrink-0" alt="Folio" />
           <div>
             <p className="text-sm font-semibold leading-none tracking-tight font-serif" style={{ color: '#0A0A0A' }}>Folio</p>
             <p className="text-[10px] mt-0.5" style={{ color: '#A3A3A3' }}>

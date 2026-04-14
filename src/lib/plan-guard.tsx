@@ -101,11 +101,11 @@ export function ProFeatureGate({
   if (isPro) return <>{children}</>;
   return (
     <div className="flex flex-col items-center justify-center h-full gap-6 p-8 text-center relative overflow-hidden">
-      {/* Stipple wallet decoration */}
-      <div className="relative w-20 h-20 opacity-60 mb-2">
+      {/* Upgrade art — overflowing wallet */}
+      <div className="relative w-40 h-40 mb-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/wallet-v5.png"
+          src="/folio-upgrade-art.png"
           alt=""
           className="w-full h-full object-contain"
           aria-hidden="true"

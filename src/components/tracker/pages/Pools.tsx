@@ -166,7 +166,7 @@ export function Pools(_props: PoolsProps) {
   return (
     <div className="p-6 space-y-5 page-enter">
       <div>
-        <h2 className="text-lg font-semibold text-[#0A0A0A]">Pools & Staking</h2>
+        <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">Pools & Staking</h2>
         <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>{pools.length.toLocaleString()} pools across all chains — powered by DeFiLlama</p>
       </div>
 

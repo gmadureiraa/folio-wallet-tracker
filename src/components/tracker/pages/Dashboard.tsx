@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { PlusCircle, Wallet, ArrowRight, Loader2, Sparkles } from 'lucide-react'
+import { PlusCircle, ArrowRight, Loader2, Sparkles } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -44,7 +44,7 @@ const CARD_STYLE = { background: '#FFFFFF', border: '1px solid #E5E5E5' }
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className={CARD} style={CARD_STYLE}>
-      <p className="text-xs mb-2" style={{ color: '#A3A3A3' }}>{label}</p>
+      <p className="text-xs mb-2 font-serif" style={{ color: '#A3A3A3' }}>{label}</p>
       <p className="text-2xl font-bold font-mono" style={{ color: color ?? '#0A0A0A' }}>{value}</p>
       {sub && <p className="text-xs mt-1" style={{ color: '#A3A3A3' }}>{sub}</p>}
     </div>
@@ -182,19 +182,21 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
   if (wallets.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-          style={{ background: '#F5F5F5', border: '1px solid #E5E5E5' }}>
-          <Wallet size={28} style={{ color: '#A3A3A3' }} />
-        </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: '#0A0A0A' }}>No wallets yet</h2>
-        <p className="text-sm mb-6" style={{ color: '#A3A3A3' }}>Add a wallet address to start tracking your portfolio across all chains</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/folio-empty-state.png"
+          alt="No wallets"
+          className="max-w-xs mb-6 opacity-90"
+        />
+        <h2 className="text-xl font-semibold mb-2 font-serif" style={{ color: '#0A0A0A' }}>No wallets tracked yet</h2>
+        <p className="text-sm mb-6" style={{ color: '#A3A3A3' }}>Add a wallet address to start tracking your portfolio</p>
         <button
           onClick={onAddWallet}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
-          style={{ background: '#0A0A0A', border: '1px solid #0A0A0A', color: '#FFFFFF' }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-800"
+          style={{ background: '#0A0A0A', border: '1px solid #0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
         >
           <PlusCircle size={16} />
-          Add your first wallet
+          Add Wallet
         </button>
       </div>
     )
@@ -240,7 +242,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
           {/* Header with period selector */}
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h3 className="text-sm font-semibold text-[#0A0A0A]">Portfolio Value</h3>
+              <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif">Portfolio Value</h3>
               {chartData.length >= 2 && (
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl font-bold font-mono text-[#0A0A0A]">
@@ -307,7 +309,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
 
         {/* Chain breakdown */}
         <div className="rounded-xl p-4" style={CARD_STYLE}>
-          <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">By Chain</h3>
+          <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif mb-4">By Chain</h3>
           {chainBreakdown.length > 0 ? (
             <>
               <div className="flex justify-center mb-3">
@@ -343,7 +345,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
       {/* Token sparklines - 7d mini charts */}
       {top5Sparkline.length > 0 && (
         <div className="rounded-xl p-4" style={CARD_STYLE}>
-          <h3 className="text-sm font-semibold text-[#0A0A0A] mb-4">Token Performance ({PERIODS.find(p => p.days === chartPeriod)?.label || '30d'})</h3>
+          <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif mb-4">Token Performance ({PERIODS.find(p => p.days === chartPeriod)?.label || '30d'})</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {top5Sparkline.map(t => (
               <div key={t.cgId} className="p-3 rounded-lg" style={{ background: '#FAFAFA' }}>
@@ -366,7 +368,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
         {/* Top holdings */}
         <div className="rounded-xl p-4" style={CARD_STYLE}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[#0A0A0A]">Top Holdings</h3>
+            <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif">Top Holdings</h3>
             <button onClick={() => onNavigate('portfolio')} className="flex items-center gap-1 text-xs" style={{ color: '#A3A3A3' }}>
               All <ArrowRight size={11} />
             </button>
@@ -402,7 +404,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
         {/* Wallets */}
         <div className="rounded-xl p-4" style={CARD_STYLE}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[#0A0A0A]">Wallets</h3>
+            <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif">Wallets</h3>
             <button onClick={() => onNavigate('wallets')} className="flex items-center gap-1 text-xs" style={{ color: '#A3A3A3' }}>
               Manage <ArrowRight size={11} />
             </button>

@@ -220,7 +220,7 @@ export function Portfolio({ wallets, portfolios }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-[#0A0A0A]">Token Holdings</h2>
+          <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">Token Holdings</h2>
           <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>
             {filtered.length} tokens across {uniqueChains.length} chains
           </p>

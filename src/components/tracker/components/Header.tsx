@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { RefreshCw, Plus, Wallet, Sparkles, ArrowUpRight, Download, Moon, Sun, Settings, Menu, LogOut, LogIn, User as UserIcon } from 'lucide-react'
+import { RefreshCw, Plus, Sparkles, ArrowUpRight, Download, Moon, Sun, Settings, Menu, LogOut, LogIn, User as UserIcon } from 'lucide-react'
 import { fmtUSD, fmtPct } from '../lib/formatters'
 import { useTheme } from '../../../lib/theme'
 import { useAuth } from '../../../lib/auth-context'
@@ -64,15 +64,7 @@ export function Header({ totalValue, change24h, change24hPct, walletCount, lastU
 
       {/* Folio logo */}
       <a href="/" className="flex items-center gap-2 flex-shrink-0 mr-2 no-underline" title="Back to home">
-        <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, rgba(98,126,234,0.2) 0%, rgba(153,69,255,0.2) 100%)',
-            border: '1px solid rgba(98,126,234,0.3)',
-          }}
-        >
-          <Wallet size={13} style={{ color: '#627EEA' }} />
-        </div>
+        <img src="/folio-logo-icon.png" className="w-7 h-7" alt="Folio" />
         <span className="text-sm font-bold tracking-tight font-serif" style={{ color: '#0A0A0A' }}>Folio</span>
       </a>
 
@@ -226,7 +218,7 @@ export function Header({ totalValue, change24h, change24hPct, walletCount, lastU
 
         <button
           onClick={onAddWallet}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
           style={{ background: '#0A0A0A', border: '1px solid #0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
           onMouseEnter={e => { e.currentTarget.style.background = '#262626' }}
           onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A' }}>

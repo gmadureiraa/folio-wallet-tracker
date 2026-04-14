@@ -52,7 +52,7 @@ export function NFTs({ nfts, wallets }: Props) {
     <div className="p-6 page-enter">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-[#0A0A0A]">NFTs</h2>
+          <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">NFTs</h2>
           <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>
             {filtered.length} items · {uniqueCollections.length} collections · {fmtUSD(totalFloor)} est. value
           </p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, Wallet, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,16 +17,7 @@ function LoadingSkeleton() {
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(98,126,234,0.2) 0%, rgba(153,69,255,0.2) 100%)",
-              border: "1px solid rgba(98,126,234,0.3)",
-            }}
-          >
-            <Wallet size={18} style={{ color: "#627EEA" }} />
-          </div>
+          <img src="/folio-logo-icon.png" className="w-9 h-9" alt="Folio" />
           <span className="text-2xl font-bold tracking-tight font-serif text-gray-900">
             Folio
           </span>
@@ -81,16 +72,7 @@ function WelcomeGate({
 
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-6">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(98,126,234,0.2) 0%, rgba(153,69,255,0.2) 100%)",
-              border: "1px solid rgba(98,126,234,0.3)",
-            }}
-          >
-            <Wallet size={18} style={{ color: "#627EEA" }} />
-          </div>
+          <img src="/folio-logo-icon.png" className="w-9 h-9" alt="Folio" />
           <span className="text-2xl font-bold tracking-tight font-serif text-gray-900">
             Folio
           </span>
@@ -109,7 +91,7 @@ function WelcomeGate({
           {/* Sign in */}
           <Link
             href="/app/login"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-900 text-white text-sm font-medium transition-colors hover:bg-gray-800 no-underline"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-gray-900 text-white text-sm font-medium transition-colors hover:bg-gray-800 no-underline"
           >
             Sign in
             <ArrowRight size={14} />
@@ -119,7 +101,7 @@ function WelcomeGate({
           {!showInput ? (
             <button
               onClick={() => setShowInput(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full border border-gray-200 text-sm font-medium text-gray-700 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
             >
               Track a wallet without account
             </button>
@@ -186,10 +168,23 @@ function WelcomeGate({
    Main App Page
    ═══════════════════════════════════════════ */
 
+const GUEST_WALLET_KEY = "folio-guest-wallet";
+
 export default function AppPage() {
   const { user, loading } = useAuth();
   const [guestAddress, setGuestAddress] = useState("");
   const [showTracker, setShowTracker] = useState(false);
+
+  // Restore guest address from localStorage on mount
+  useEffect(() => {
+    if (!user) {
+      const saved = localStorage.getItem(GUEST_WALLET_KEY);
+      if (saved) {
+        setGuestAddress(saved);
+        setShowTracker(true);
+      }
+    }
+  }, [user]);
 
   // Loading state
   if (loading) return <LoadingSkeleton />;
@@ -205,6 +200,7 @@ export default function AppPage() {
       onEnter={(address) => {
         setGuestAddress(address);
         setShowTracker(true);
+        localStorage.setItem(GUEST_WALLET_KEY, address);
       }}
     />
   );

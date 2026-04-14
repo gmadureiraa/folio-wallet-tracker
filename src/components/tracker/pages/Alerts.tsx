@@ -76,7 +76,7 @@ export function Alerts({ prices }: Props) {
     <div className="p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-[#0A0A0A]">Price Alerts</h2>
+          <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">Price Alerts</h2>
           <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>
             {withStatus.filter(a => a.enabled).length} active · {withStatus.filter(a => a.wouldTrigger && a.enabled).length} triggered
           </p>

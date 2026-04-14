@@ -63,7 +63,7 @@ export function DeFiPositions({ positions, wallets }: Props) {
     <div className="p-6 page-enter">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-[#0A0A0A]">DeFi Positions</h2>
+          <h2 className="text-lg font-semibold text-[#0A0A0A] font-serif">DeFi Positions</h2>
           <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>
             {filtered.length} positions · {fmtUSD(totalValue)} total value
           </p>

@@ -291,7 +291,7 @@ export function SmartAllocator({ portfolios, priceMap }: Props) {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Sparkles size={20} style={{ color: '#8B5CF6' }} />
-          <h1 className="text-xl font-bold" style={{ color: '#0A0A0A' }}>Smart Allocator</h1>
+          <h1 className="text-xl font-bold font-serif" style={{ color: '#0A0A0A' }}>Smart Allocator</h1>
         </div>
         <p className="text-sm" style={{ color: '#A3A3A3' }}>
           Optimize your portfolio yield across {pools.length.toLocaleString()} DeFi pools
