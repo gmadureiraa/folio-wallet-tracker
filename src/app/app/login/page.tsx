@@ -219,7 +219,7 @@ export default function LoginPage() {
           </button>
 
           <p className="text-[10px] text-center text-gray-300 mt-1">
-            Google sign-in may not be available yet. Use email &amp; password above.
+            More sign-in options coming soon
           </p>
         </div>
 

@@ -201,7 +201,7 @@ export default function SettingsPage() {
                 ) : (
                   <>
                     <p className="text-sm font-medium text-gray-900">Free Plan</p>
-                    <p className="text-xs text-gray-400 mt-0.5">1 wallet, basic tracking</p>
+                    <p className="text-xs text-gray-400 mt-0.5">3 wallets, basic tracking</p>
                   </>
                 )}
               </div>

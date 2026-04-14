@@ -31,8 +31,8 @@ const translations = {
     navPricing: "Pricing",
     navBlog: "Blog",
     navCta: "Get Started",
-    heroTitle: "Meet Folio,",
-    heroSub: "and track every token across every chain.",
+    heroTitle: "Track Every Token.\nAcross Every Chain.",
+    heroSub: "16 blockchains. Real-time prices. PnL. NFTs. One dashboard. Free.",
     cta: "Start Tracking",
     statsBlockchains: "Blockchains",
     statsTokens: "Tokens tracked",
@@ -71,8 +71,8 @@ const translations = {
     planFreePrice: "$0",
     planFreePeriod: "forever",
     planFreeFeatures: [
-      "1 wallet",
-      "Up to $1,000 portfolio",
+      "3 wallets",
+      "Up to $10,000 portfolio",
       "Basic tracking",
       "Real-time prices",
     ],
@@ -114,8 +114,8 @@ const translations = {
     navPricing: "Pre\u00e7os",
     navBlog: "Blog",
     navCta: "Comece Agora",
-    heroTitle: "Conhe\u00e7a o Folio,",
-    heroSub: "e rastreie cada token em cada blockchain.",
+    heroTitle: "Rastreie Cada Token.\nEm Cada Blockchain.",
+    heroSub: "16 blockchains. Pre\u00e7os em tempo real. PnL. NFTs. Um painel. Gr\u00e1tis.",
     cta: "Come\u00e7ar a Rastrear",
     statsBlockchains: "Blockchains",
     statsTokens: "Tokens rastreados",
@@ -155,8 +155,8 @@ const translations = {
     planFreePrice: "$0",
     planFreePeriod: "para sempre",
     planFreeFeatures: [
-      "1 carteira",
-      "At\u00e9 $1.000 em portf\u00f3lio",
+      "3 carteiras",
+      "At\u00e9 $10.000 em portf\u00f3lio",
       "Rastreamento b\u00e1sico",
       "Pre\u00e7os em tempo real",
     ],
@@ -539,7 +539,7 @@ export default function FolioV2() {
           transition={{ duration: 0.7 }}
           className="text-center mb-2 px-6"
         >
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.08] font-serif">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.08] font-serif whitespace-pre-line">
             {t.heroTitle}
           </h1>
         </motion.div>
@@ -618,6 +618,17 @@ export default function FolioV2() {
           ))}
         </div>
       </section>
+
+      {/* ════════════════════════════════════════
+          SOCIAL PROOF
+          ════════════════════════════════════════ */}
+      <div className="py-8 text-center">
+        <p className="text-sm text-gray-400">
+          {lang === "pt"
+            ? "Usado por holders de cripto rastreando portfolios em 16 blockchains"
+            : "Trusted by crypto holders tracking portfolios across 16 chains"}
+        </p>
+      </div>
 
       {/* ════════════════════════════════════════
           FEATURES
@@ -944,14 +955,11 @@ export default function FolioV2() {
             </span>
           </div>
           <div className="flex gap-6 text-xs text-gray-400">
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            <a href="https://x.com/foliotracker" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
               Twitter
             </a>
-            <a href="#" className="hover:text-gray-600 transition-colors">
+            <a href="https://github.com/gmadureiraa/folio-wallet-tracker" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
               GitHub
-            </a>
-            <a href="#" className="hover:text-gray-600 transition-colors">
-              Discord
             </a>
           </div>
           <p className="text-xs text-gray-300">{t.footerCopy}</p>
