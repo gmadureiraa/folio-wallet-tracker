@@ -49,7 +49,7 @@ export default function SettingsPage() {
   // Load from localStorage (same keys used by the tracker app)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const storedWallets = localStorage.getItem("folio-wallets");
+    const storedWallets = localStorage.getItem("wallet-tracker-wallets");
     const storedLang = localStorage.getItem("folio_lang") as "en" | "pt";
 
     if (storedWallets) {
@@ -72,7 +72,7 @@ export default function SettingsPage() {
   const removeWallet = (id: string) => {
     const updated = wallets.filter((w) => w.id !== id);
     setWallets(updated);
-    localStorage.setItem("folio-wallets", JSON.stringify(updated));
+    localStorage.setItem("wallet-tracker-wallets", JSON.stringify(updated));
   };
 
   const handleExport = () => {
@@ -93,7 +93,7 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
-    localStorage.removeItem("folio-wallets");
+    localStorage.removeItem("wallet-tracker-wallets");
     localStorage.removeItem("folio_lang");
     localStorage.removeItem("folio-theme");
     await signOut();
