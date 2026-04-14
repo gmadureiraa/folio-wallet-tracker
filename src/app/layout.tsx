@@ -1,20 +1,36 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "folio. — Crypto Portfolio Tracker",
+  title: "Folio — Multi-Chain Wallet Tracker | Track Every Token",
   description:
-    "Track your entire crypto portfolio across 16 blockchains. Real-time prices, DeFi, PnL.",
+    "Folio scans 16 blockchains, tracks real-time prices, calculates PnL, and shows your complete crypto portfolio. NFTs included. Read-only. No keys required.",
+  openGraph: {
+    title: "Folio — Multi-Chain Wallet Tracker",
+    description: "Track every token across every chain. Real-time prices, PnL, NFTs. Read-only, no keys required.",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#050507",
 };
 
 export default function RootLayout({
@@ -23,15 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistMono.variable} h-full`}
-      style={{
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      }}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="pt-BR" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} h-full dark`}>
+      <body className="min-h-full flex flex-col antialiased">{children}</body>
     </html>
   );
 }
