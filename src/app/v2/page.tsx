@@ -104,6 +104,23 @@ const translations = {
     planCustomCta: "Talk to us",
     accepted: "Accepted:",
     payWith: "Pay with BTC, ETH, USDT or SOL",
+    howItWorksLabel: "How it works",
+    howItWorksTitle: "Start tracking in 30 seconds.",
+    step1Title: "Paste your wallet address",
+    step1Desc: "EVM or Solana. Folio auto-detects and scans all supported chains.",
+    step2Title: "See your complete portfolio",
+    step2Desc: "Tokens, NFTs, DeFi positions, PnL \u2014 all in one dashboard.",
+    step3Title: "Set alerts and export",
+    step3Desc: "Price alerts, CSV exports, whale tracking. Upgrade to Pro for $0.99/mo.",
+    faqLabel: "FAQ",
+    faqTitle: "Common questions",
+    faqs: [
+      { q: "Is Folio really free?", a: "Yes. The free tier includes 3 wallets and up to $10,000 portfolio tracking. No credit card required." },
+      { q: "Do I need to connect my wallet?", a: "No. Folio is read-only. You paste a public address and we scan the blockchain. We never ask for private keys." },
+      { q: "Which blockchains are supported?", a: "16 chains: Ethereum, Polygon, Arbitrum, BSC, Base, Optimism, Solana, Avalanche, Linea, Scroll, zkSync, Fantom, Gnosis, Mantle, Cronos, and Celo." },
+      { q: "How does Pro payment work?", a: "Pro costs $0.99/month or $9.99/year, paid in USDT or USDC on any supported network. You send to our wallet and we verify the transaction on-chain." },
+      { q: "Can I export my portfolio data?", a: "Pro users can export their full portfolio as CSV. Free users can view everything in the dashboard." },
+    ],
     ctaTitle: "Stop guessing. Start tracking.",
     ctaDesc: "Track everything you own across every chain.",
     ctaButton: "Get Folio Free",
@@ -188,6 +205,23 @@ const translations = {
     planCustomCta: "Fale conosco",
     accepted: "Aceitos:",
     payWith: "Pague com BTC, ETH, USDT ou SOL",
+    howItWorksLabel: "Como funciona",
+    howItWorksTitle: "Comece a rastrear em 30 segundos.",
+    step1Title: "Cole o endere\u00e7o da sua wallet",
+    step1Desc: "EVM ou Solana. O Folio detecta e escaneia todas as chains automaticamente.",
+    step2Title: "Veja seu portfolio completo",
+    step2Desc: "Tokens, NFTs, posi\u00e7\u00f5es DeFi, PnL \u2014 tudo em um painel.",
+    step3Title: "Configure alertas e exporte",
+    step3Desc: "Alertas de pre\u00e7o, export CSV, whale tracking. Pro por $0.99/m\u00eas.",
+    faqLabel: "FAQ",
+    faqTitle: "Perguntas frequentes",
+    faqs: [
+      { q: "O Folio \u00e9 realmente gr\u00e1tis?", a: "Sim. O plano gratuito inclui 3 carteiras e at\u00e9 $10.000 em portf\u00f3lio. Sem cart\u00e3o de cr\u00e9dito." },
+      { q: "Preciso conectar minha carteira?", a: "N\u00e3o. O Folio \u00e9 somente leitura. Voc\u00ea cola um endere\u00e7o p\u00fablico e n\u00f3s escaneamos a blockchain. Nunca pedimos chaves privadas." },
+      { q: "Quais blockchains s\u00e3o suportadas?", a: "16 chains: Ethereum, Polygon, Arbitrum, BSC, Base, Optimism, Solana, Avalanche, Linea, Scroll, zkSync, Fantom, Gnosis, Mantle, Cronos e Celo." },
+      { q: "Como funciona o pagamento Pro?", a: "O Pro custa $0.99/m\u00eas ou $9.99/ano, pago em USDT ou USDC em qualquer rede suportada. Voc\u00ea envia para nossa carteira e verificamos a transa\u00e7\u00e3o on-chain." },
+      { q: "Posso exportar meus dados?", a: "Usu\u00e1rios Pro podem exportar o portf\u00f3lio completo como CSV. Usu\u00e1rios gratuitos podem visualizar tudo no painel." },
+    ],
     ctaTitle: "Pare de adivinhar. Comece a rastrear.",
     ctaDesc: "Rastreie tudo que voc\u00ea possui em todas as chains.",
     ctaButton: "Comece Gr\u00e1tis",
@@ -684,6 +718,33 @@ export default function FolioV2() {
       </section>
 
       {/* ════════════════════════════════════════
+          HOW IT WORKS
+          ════════════════════════════════════════ */}
+      <section className="py-20 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <FadeIn>
+            <p className="text-sm text-gray-400 uppercase tracking-widest mb-4 text-center">{t.howItWorksLabel}</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-16 font-serif text-center">{t.howItWorksTitle}</h2>
+          </FadeIn>
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              { num: "1", title: t.step1Title, desc: t.step1Desc },
+              { num: "2", title: t.step2Title, desc: t.step2Desc },
+              { num: "3", title: t.step3Title, desc: t.step3Desc },
+            ].map((step, i) => (
+              <FadeIn key={step.num} delay={i * 0.1}>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center mx-auto mb-4 text-lg font-bold font-serif">{step.num}</div>
+                  <h3 className="font-semibold mb-2 font-serif">{step.title}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
           USE CASE STORY
           ════════════════════════════════════════ */}
       <section className="py-24 md:py-32 bg-gray-50/50">
@@ -910,6 +971,33 @@ export default function FolioV2() {
               })}
             </div>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          FAQ
+          ════════════════════════════════════════ */}
+      <section className="py-24 md:py-32">
+        <div className="max-w-2xl mx-auto px-6">
+          <FadeIn>
+            <p className="text-sm text-gray-400 uppercase tracking-widest mb-4 text-center">{t.faqLabel}</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-12 font-serif text-center">{t.faqTitle}</h2>
+          </FadeIn>
+          <div className="space-y-4">
+            {t.faqs.map((faq, i) => (
+              <FadeIn key={i} delay={i * 0.05}>
+                <details className="group border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 transition-colors">
+                  <summary className="flex items-center justify-between px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 select-none">
+                    {faq.q}
+                    <span className="ml-4 text-gray-400 group-open:rotate-45 transition-transform text-lg">+</span>
+                  </summary>
+                  <div className="px-6 pb-4 text-sm text-gray-500 leading-relaxed">
+                    {faq.a}
+                  </div>
+                </details>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 

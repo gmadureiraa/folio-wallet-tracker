@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Image, ExternalLink, Grid3X3, LayoutGrid, Wallet } from 'lucide-react'
+import { ExternalLink, Grid3X3, LayoutGrid } from 'lucide-react'
 import { fmtUSD } from '../lib/formatters'
 import { CHAINS } from '../lib/chains'
 import type { TrackedWallet, NFTItem } from '../types'
@@ -8,11 +8,30 @@ interface Props {
   nfts: NFTItem[]
   wallets: TrackedWallet[]
   ethPrice?: number
+  loading?: boolean
 }
 
 type GridSize = 'sm' | 'md' | 'lg'
 
-export function NFTs({ nfts, wallets }: Props) {
+// Skeleton card for loading state
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+      <div className="aspect-square skeleton-pulse" />
+      <div className="p-3 space-y-2">
+        <div className="h-3 w-20 skeleton-pulse rounded" />
+        <div className="h-4 w-28 skeleton-pulse rounded" />
+        <div className="h-px w-full mt-2" style={{ background: '#F0F0F0' }} />
+        <div className="flex justify-between mt-2">
+          <div className="h-5 w-16 skeleton-pulse rounded" />
+          <div className="h-3 w-12 skeleton-pulse rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function NFTs({ nfts, wallets, loading }: Props) {
   const [filterWallet, setFilterWallet] = useState<string>('all')
   const [filterChain, setFilterChain] = useState<string>('all')
   const [gridSize, setGridSize] = useState<GridSize>('md')
@@ -114,12 +133,19 @@ export function NFTs({ nfts, wallets }: Props) {
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {/* Loading skeleton */}
+      {loading && nfts.length === 0 ? (
+        <div className={`grid ${gridCols[gridSize]} gap-4`}>
+          {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(96,165,250,0.1))', border: '1px solid rgba(139,92,246,0.15)' }}>
-            <Image size={24} style={{ color: '#8B5CF6' }} />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/folio-empty-state.png"
+            alt="No NFTs"
+            className="max-w-[200px] mb-6 opacity-80"
+          />
           <p className="text-sm font-medium mb-1" style={{ color: '#0A0A0A' }}>
             {wallets.length === 0 ? 'No wallets added' : 'No NFTs found'}
           </p>
@@ -128,12 +154,6 @@ export function NFTs({ nfts, wallets }: Props) {
               ? 'Add a wallet to discover your NFT collection'
               : 'These wallets don\'t hold any NFTs on supported chains'}
           </p>
-          {wallets.length === 0 && (
-            <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: '#F5F5F5' }}>
-              <Wallet size={13} style={{ color: '#737373' }} />
-              <span className="text-xs" style={{ color: '#737373' }}>Go to Wallets page to add one</span>
-            </div>
-          )}
         </div>
       ) : (
         <div className={`grid ${gridCols[gridSize]} gap-4`}>

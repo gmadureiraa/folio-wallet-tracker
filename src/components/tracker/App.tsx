@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { exportPortfolioCSV } from '../../lib/export'
 import { ProFeatureGate, usePlan } from '../../lib/plan-guard'
 import { Sidebar } from './components/Sidebar'
@@ -39,6 +39,10 @@ function App({ initialAddress }: AppProps) {
   const [currentPage, setCurrentPage] = useState<PageId>('dashboard')
   const [addWalletOpen, setAddWalletOpen] = useState(false)
   const [initialAdded, setInitialAdded] = useState(false)
+
+  // Welcome toast state
+  const [welcomeToast, setWelcomeToast] = useState<string | null>(null)
+  const prevWalletCount = useRef(0)
 
   const { wallets, addWallet, removeWallet, updateWallet } = useWallets()
   const { prices, priceMap, lastUpdated, refetch } = usePrices()
@@ -213,6 +217,28 @@ function App({ initialAddress }: AppProps) {
     return () => { cancelled = true }
   }, [wallets, Object.keys(priceMap).length])
 
+  // Welcome toast: show when user goes from 0 wallets to having portfolios
+  useEffect(() => {
+    if (prevWalletCount.current === 0 && wallets.length > 0 && portfolios.length > 0 && !portfolioLoading) {
+      const totalTokens = portfolios.reduce((s, p) => s + p.tokens.length, 0)
+      const chains = new Set(portfolios.flatMap(p => p.tokens.map(t => t.chain)))
+      if (totalTokens > 0) {
+        setWelcomeToast(`Portfolio loaded! Tracking ${totalTokens} token${totalTokens !== 1 ? 's' : ''} across ${chains.size} chain${chains.size !== 1 ? 's' : ''}.`)
+        setTimeout(() => setWelcomeToast(null), 5000)
+      }
+    }
+    prevWalletCount.current = wallets.length
+  }, [wallets.length, portfolios, portfolioLoading])
+
+  // "What's New" banner
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    try { return localStorage.getItem('folio:banner-dismissed-v1') === '1' } catch { return false }
+  })
+  const dismissBanner = useCallback(() => {
+    setBannerDismissed(true)
+    try { localStorage.setItem('folio:banner-dismissed-v1', '1') } catch { /* ignore */ }
+  }, [])
+
   const totalValue = portfolios.reduce((s, p) => s + p.totalValueUsd, 0)
   const total24hChange = portfolios.reduce((s, p) => s + p.change24hUsd, 0)
   const total24hPct = totalValue > 0 ? (total24hChange / totalValue) * 100 : 0
@@ -304,6 +330,25 @@ function App({ initialAddress }: AppProps) {
 
       <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} walletCount={wallets.length} fundedChains={fundedChains} />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        {/* What's New banner */}
+        {!bannerDismissed && (
+          <div className="flex items-center justify-between px-4 md:px-6 py-2" style={{ background: 'linear-gradient(90deg, rgba(139,92,246,0.06), rgba(98,126,234,0.06))', borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
+            <p className="text-[11px]" style={{ color: '#737373' }}>
+              <span className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold mr-2" style={{ background: '#8B5CF6', color: '#fff' }}>NEW</span>
+              Track DeFi positions across 14 protocols.
+              <a href="/app/plan" className="ml-1 font-semibold no-underline" style={{ color: '#627EEA' }}>Upgrade to Pro &rarr;</a>
+            </p>
+            <button
+              onClick={dismissBanner}
+              className="text-[11px] px-2 py-0.5 rounded transition-colors flex-shrink-0"
+              style={{ color: '#A3A3A3', cursor: 'pointer' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#0A0A0A' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#A3A3A3' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
         <Header
           totalValue={totalValue}
           change24h={total24hChange}
@@ -313,11 +358,37 @@ function App({ initialAddress }: AppProps) {
           onRefresh={() => { refetch(); fetchPortfolios() }}
           onAddWallet={handleOpenAddWallet}
           onExport={isPro && portfolios.length > 0 ? handleExport : undefined}
+          showPulse={wallets.length === 0}
         />
         <main className="flex-1 overflow-y-auto">
           {renderPage()}
         </main>
       </div>
+
+      {/* Welcome toast */}
+      {welcomeToast && (
+        <div
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 notification-enter"
+          style={{ maxWidth: 420 }}
+        >
+          <div
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E5E5', boxShadow: '0 12px 40px rgba(0,0,0,0.12)' }}
+          >
+            <span className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.1)' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5L6.5 11.5L2.5 7.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </span>
+            <p className="text-xs font-medium" style={{ color: '#0A0A0A' }}>{welcomeToast}</p>
+            <button
+              onClick={() => setWelcomeToast(null)}
+              className="text-[10px] ml-2 flex-shrink-0"
+              style={{ color: '#A3A3A3', cursor: 'pointer' }}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

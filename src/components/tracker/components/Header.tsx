@@ -13,6 +13,7 @@ interface HeaderProps {
   onRefresh: () => void
   onAddWallet: () => void
   onExport?: () => void
+  showPulse?: boolean
 }
 
 function useElapsed(d: Date | null): string {
@@ -29,7 +30,7 @@ function useElapsed(d: Date | null): string {
 const pill = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs'
 const pillStyle = { background: '#FFFFFF', border: '1px solid #E5E5E5' }
 
-export function Header({ totalValue, change24h, change24hPct, walletCount, lastUpdated, onRefresh, onAddWallet, onExport }: HeaderProps) {
+export function Header({ totalValue, change24h, change24hPct, walletCount, lastUpdated, onRefresh, onAddWallet, onExport, showPulse }: HeaderProps) {
   const [spinning, setSpinning] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const elapsed = useElapsed(lastUpdated)
@@ -193,15 +194,23 @@ export function Header({ totalValue, change24h, change24hPct, walletCount, lastU
           </a>
         )}
 
-        <button
-          onClick={onAddWallet}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all"
-          style={{ background: '#0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#262626'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)' }}>
-          <Plus size={12} />
-          <span className="hidden md:inline">Add Wallet</span>
-        </button>
+        <div className="relative">
+          {showPulse && (
+            <span className="absolute -top-1 -right-1 flex h-3 w-3 z-10">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
+            </span>
+          )}
+          <button
+            onClick={onAddWallet}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all"
+            style={{ background: '#0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#262626'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)' }}>
+            <Plus size={12} />
+            <span className="hidden md:inline">Add Wallet</span>
+          </button>
+        </div>
       </div>
     </header>
   )

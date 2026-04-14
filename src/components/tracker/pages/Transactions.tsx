@@ -68,6 +68,14 @@ export function Transactions({ transactions, wallets }: Props) {
         </div>
       </div>
 
+      {/* Mock data notice */}
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-4" style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#F59E0B" strokeWidth="1.5"/><path d="M8 5v3.5M8 10.5v.5" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        <span className="text-[11px] font-medium" style={{ color: '#92400E' }}>
+          Real transaction history coming soon. Showing simulated data for preview.
+        </span>
+      </div>
+
       {/* Filters */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <select value={filterType} onChange={e => setFilterType(e.target.value)}
@@ -86,7 +94,19 @@ export function Transactions({ transactions, wallets }: Props) {
         </select>
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+        {/* Table header */}
+        <div className="grid items-center px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider"
+          style={{ color: '#A3A3A3', borderBottom: '1px solid #F0F0F0', gridTemplateColumns: '44px 1.5fr 0.8fr 0.8fr 0.8fr 1fr 24px' }}>
+          <span />
+          <span>Transaction</span>
+          <span className="text-center">Token</span>
+          <span className="text-right">Amount</span>
+          <span className="text-right">Value</span>
+          <span className="text-right">Date</span>
+          <span />
+        </div>
         {filtered.length === 0 ? (
           <p className="text-xs text-center py-10" style={{ color: '#A3A3A3' }}>No transactions</p>
         ) : (
@@ -97,7 +117,8 @@ export function Transactions({ transactions, wallets }: Props) {
               const wallet = wallets.find(w => w.id === tx.walletId)
               const chain = CHAINS[tx.chain]
               return (
-                <div key={tx.hash} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                <div key={tx.hash} className="portfolio-row grid items-center px-4 py-3"
+                  style={{ gridTemplateColumns: '44px 1.5fr 0.8fr 0.8fr 0.8fr 1fr 24px' }}>
                   {/* Icon */}
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ background: color + '15', border: `1px solid ${color}30` }}>
@@ -105,7 +126,7 @@ export function Transactions({ transactions, wallets }: Props) {
                   </div>
 
                   {/* Type + hash */}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-[#0A0A0A]">{TX_LABELS[tx.type]}</span>
                       <span className="text-[9px] px-1.5 rounded" style={{ background: chain.color + '22', color: chain.color }}>{chain.name}</span>
@@ -115,35 +136,98 @@ export function Transactions({ transactions, wallets }: Props) {
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className="text-[10px] font-mono" style={{ color: '#A3A3A3' }}>{shortenAddress(tx.hash, 10, 8)}</span>
-                      <a href={`${chain.explorer}/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
+                      <a href={`${chain.explorer}/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
                         <ExternalLink size={10} style={{ color: '#A3A3A3' }} />
                       </a>
                     </div>
                   </div>
 
                   {/* Token info */}
-                  <div className="text-center hidden md:block">
+                  <div className="text-center">
                     {tx.type === 'swap' && tx.tokenSymbol && tx.toTokenSymbol ? (
                       <div className="text-xs" style={{ color: '#737373' }}>
                         <span style={{ color: '#EF4444' }}>{tx.tokenSymbol}</span>
-                        <span style={{ color: '#A3A3A3' }}> → </span>
+                        <span style={{ color: '#A3A3A3' }}> &rarr; </span>
                         <span style={{ color: '#22C55E' }}>{tx.toTokenSymbol}</span>
                       </div>
                     ) : tx.tokenSymbol ? (
                       <p className="text-xs" style={{ color: '#737373' }}>{tx.tokenSymbol}</p>
-                    ) : null}
+                    ) : <span style={{ color: '#D4D4D4' }}>--</span>}
                   </div>
 
-                  {/* Value + time */}
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs font-mono text-[#0A0A0A]">{fmtUSD(tx.valueUsd)}</p>
-                    <p className="text-[10px]" style={{ color: '#A3A3A3' }}>
-                      fee {fmtUSD(tx.feeUsd)} · {timeAgo(tx.timestamp)}
-                    </p>
+                  {/* Amount */}
+                  <div className="text-right">
+                    {tx.tokenAmount ? (
+                      <p className="text-xs font-mono tabular-nums text-[#0A0A0A]">
+                        {tx.tokenAmount < 0.001 ? tx.tokenAmount.toExponential(2) : tx.tokenAmount.toLocaleString('en-US', { maximumFractionDigits: 4 })}
+                      </p>
+                    ) : <span className="text-xs" style={{ color: '#D4D4D4' }}>--</span>}
+                  </div>
+
+                  {/* Value */}
+                  <div className="text-right">
+                    <p className="text-xs font-mono tabular-nums text-[#0A0A0A]">{fmtUSD(tx.valueUsd)}</p>
+                    <p className="text-[10px]" style={{ color: '#A3A3A3' }}>fee {fmtUSD(tx.feeUsd)}</p>
+                  </div>
+
+                  {/* Date */}
+                  <div className="text-right">
+                    <p className="text-[11px]" style={{ color: '#737373' }}>{timeAgo(tx.timestamp)}</p>
                   </div>
 
                   {/* Status */}
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: tx.status === 'confirmed' ? '#22C55E' : tx.status === 'pending' ? '#F59E0B' : '#EF4444' }} />
+                  <div className="flex justify-center">
+                    <div className="w-2 h-2 rounded-full" style={{ background: tx.status === 'confirmed' ? '#22C55E' : tx.status === 'pending' ? '#F59E0B' : '#EF4444' }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden rounded-xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+        {filtered.length === 0 ? (
+          <p className="text-xs text-center py-10" style={{ color: '#A3A3A3' }}>No transactions</p>
+        ) : (
+          <div className="divide-y" style={{ borderColor: '#F5F5F5' }}>
+            {filtered.slice(0, 100).map(tx => {
+              const IconComp = TX_ICONS[tx.type] ?? Shield
+              const color = TX_COLORS[tx.type] ?? '#4A4A52'
+              const wallet = wallets.find(w => w.id === tx.walletId)
+              const chain = CHAINS[tx.chain]
+              return (
+                <div key={`m-${tx.hash}`} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: color + '15', border: `1px solid ${color}30` }}>
+                    <IconComp size={14} className="flex-shrink-0" style={{ color } as React.CSSProperties} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-semibold text-[#0A0A0A]">{TX_LABELS[tx.type]}</span>
+                      <span className="text-[9px] px-1.5 rounded" style={{ background: chain.color + '22', color: chain.color }}>{chain.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      {tx.type === 'swap' && tx.tokenSymbol && tx.toTokenSymbol ? (
+                        <span className="text-[10px]" style={{ color: '#737373' }}>
+                          <span style={{ color: '#EF4444' }}>{tx.tokenSymbol}</span> &rarr; <span style={{ color: '#22C55E' }}>{tx.toTokenSymbol}</span>
+                        </span>
+                      ) : tx.tokenSymbol ? (
+                        <span className="text-[10px]" style={{ color: '#737373' }}>{tx.tokenSymbol}</span>
+                      ) : null}
+                      <span className="text-[10px]" style={{ color: '#A3A3A3' }}>&middot; {timeAgo(tx.timestamp)}</span>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-mono text-[#0A0A0A]">{fmtUSD(tx.valueUsd)}</p>
+                    <div className="flex items-center gap-1 justify-end mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: tx.status === 'confirmed' ? '#22C55E' : tx.status === 'pending' ? '#F59E0B' : '#EF4444' }} />
+                      <a href={`${chain.explorer}/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink size={10} style={{ color: '#A3A3A3' }} />
+                      </a>
+                    </div>
+                  </div>
                 </div>
               )
             })}

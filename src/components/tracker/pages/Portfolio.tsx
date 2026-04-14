@@ -123,12 +123,64 @@ export function Portfolio({ wallets, portfolios }: Props) {
 
   const uniqueChains = [...new Set(allTokens.map(t => t.chain))]
 
+  // Mobile card layout for a single token
+  function renderTokenCard(t: (typeof filtered)[0], i: number) {
+    const chainColor = CHAINS[t.chain]?.color ?? '#555'
+    return (
+      <div key={`card-${t.id}-${t.walletId}-${i}`} className="portfolio-row p-4 md:hidden" style={{ borderBottom: '1px solid #F5F5F5' }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="relative flex-shrink-0">
+            {t.logo ? (
+              <img src={t.logo} alt={t.symbol} className="w-9 h-9 rounded-full"
+                onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${t.symbol}&size=36&background=F0F0F0&color=737373&bold=true&font-size=0.4` }} />
+            ) : (
+              <div className="w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold"
+                style={{ background: '#F0F0F0', color: '#737373' }}>{t.symbol.slice(0, 2)}</div>
+            )}
+            <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[6px] font-bold border-2 border-white"
+              style={{ background: chainColor, color: '#fff' }} title={CHAINS[t.chain]?.name}>
+              {CHAINS[t.chain]?.name?.slice(0, 1)}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-[#0A0A0A]">{t.symbol}</span>
+              <span className="text-[10px]" style={{ color: '#A3A3A3' }}>{t.name}</span>
+            </div>
+            <p className="text-xs font-mono tabular-nums text-[#0A0A0A]">{fmtUSD(t.priceUsd)}
+              <span className={`ml-1.5 text-[10px] ${pctClass(t.priceChange24h)}`}>
+                {t.priceChange24h >= 0 ? '+' : ''}{t.priceChange24h.toFixed(2)}%
+              </span>
+            </p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-sm font-mono tabular-nums font-semibold text-[#0A0A0A]">{fmtUSD(t.valueUsd)}</p>
+            <p className="text-[10px] font-mono tabular-nums" style={{ color: '#A3A3A3' }}>
+              {t.balance < 0.001 ? t.balance.toExponential(2) : t.balance.toLocaleString('en-US', { maximumFractionDigits: 4 })} {t.symbol}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 flex-1">
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}>
+              <div className="h-full rounded-full bar-animate" style={{ width: `${Math.min(t.allocation, 100)}%`, background: CHAINS[t.chain]?.color ?? '#737373' }} />
+            </div>
+            <span className="text-[10px] font-mono tabular-nums" style={{ color: '#737373' }}>{t.allocation.toFixed(1)}%</span>
+          </div>
+          <p className={`text-[10px] font-mono tabular-nums font-semibold ${pctClass(t.pnlUsd)}`}>
+            PnL {t.pnlUsd >= 0 ? '+' : ''}{fmtUSD(t.pnlUsd)}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   function renderTokenRow(t: (typeof filtered)[0], i: number) {
     const chainColor = CHAINS[t.chain]?.color ?? '#555'
     return (
       <div
         key={`${t.id}-${t.walletId}-${i}`}
-        className="portfolio-row grid items-center px-4 py-3"
+        className="portfolio-row hidden md:grid items-center px-4 py-3"
         style={{ gridTemplateColumns: '2.5fr 1fr 1fr 80px 0.8fr 1fr 0.8fr' }}
       >
         {/* Token: logo + name + symbol + chain badge */}
@@ -343,9 +395,9 @@ export function Portfolio({ wallets, portfolios }: Props) {
 
       {/* Table */}
       <div className="card rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0' }}>
-        {/* Header row */}
+        {/* Header row (desktop only) */}
         <div
-          className="grid items-center px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider"
+          className="hidden md:grid items-center px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider"
           style={{ color: '#A3A3A3', borderBottom: '1px solid #F0F0F0', gridTemplateColumns: '2.5fr 1fr 1fr 80px 0.8fr 1fr 0.8fr' }}
         >
           <span>Token</span>
@@ -396,7 +448,12 @@ export function Portfolio({ wallets, portfolios }: Props) {
                     </span>
                   </div>
                   <div className="divide-y" style={{ borderColor: '#F5F5F5' }}>
-                    {tokens.map((t, i) => renderTokenRow(t, i))}
+                    {tokens.map((t, i) => (
+                      <div key={`grp-wrapper-${t.id}-${t.walletId}-${i}`}>
+                        {renderTokenCard(t, i)}
+                        {renderTokenRow(t, i)}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )
@@ -405,14 +462,19 @@ export function Portfolio({ wallets, portfolios }: Props) {
         ) : (
           // Flat view
           <div className="divide-y" style={{ borderColor: '#F5F5F5' }}>
-            {filtered.map((t, i) => renderTokenRow(t, i))}
+            {filtered.map((t, i) => (
+              <div key={`wrapper-${t.id}-${t.walletId}-${i}`}>
+                {renderTokenCard(t, i)}
+                {renderTokenRow(t, i)}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Total row */}
+        {/* Total row — desktop */}
         {filtered.length > 0 && (
           <div
-            className="total-row grid items-center px-4 py-3 font-semibold"
+            className="total-row hidden md:grid items-center px-4 py-3 font-semibold"
             style={{ borderTop: '1px solid #E5E5E5', gridTemplateColumns: '2.5fr 1fr 1fr 80px 0.8fr 1fr 0.8fr' }}
           >
             <div className="flex items-center gap-2">
@@ -426,6 +488,18 @@ export function Portfolio({ wallets, portfolios }: Props) {
               {totalPnl >= 0 ? '+' : ''}{fmtUSD(totalPnl)}
             </p>
             <p className="text-[10px] font-mono tabular-nums text-right" style={{ color: '#737373' }}>100%</p>
+          </div>
+        )}
+        {/* Total row — mobile */}
+        {filtered.length > 0 && (
+          <div className="total-row md:hidden flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid #E5E5E5' }}>
+            <span className="text-xs font-bold text-[#0A0A0A]">Total ({filtered.length} tokens)</span>
+            <div className="text-right">
+              <p className="text-sm font-mono tabular-nums font-bold text-[#0A0A0A]">{fmtUSD(totalValue)}</p>
+              <p className={`text-[10px] font-mono tabular-nums font-semibold ${pctClass(totalPnl)}`}>
+                PnL {totalPnl >= 0 ? '+' : ''}{fmtUSD(totalPnl)}
+              </p>
+            </div>
           </div>
         )}
       </div>

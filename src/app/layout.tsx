@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     title: "Folio — Track Every Token Across Every Chain",
     description: "Multi-chain wallet tracker. 16 blockchains, real-time prices, PnL, NFTs. Free. Read-only. No keys required.",
     type: "website",
-    images: [{ url: "/wallet-v5.png", width: 1200, height: 630 }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Folio — Multi-Chain Wallet Tracker",
     description: "Track every token across every chain. Free.",
-    images: ["/wallet-v5.png"],
+    images: ["/og-image.png"],
   },
 };
 
