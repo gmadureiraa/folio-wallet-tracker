@@ -293,7 +293,7 @@ function App({ initialAddress }: AppProps) {
   }
 
   return (
-    <div className="tracker-app flex h-screen overflow-hidden" style={{ background: '#FAFAFA' }}>
+    <div className="tracker-app flex h-screen overflow-hidden" style={{ background: '#F5F5F5' }}>
       {/* Scan progress overlay */}
       <ScanProgress
         title="Folio"

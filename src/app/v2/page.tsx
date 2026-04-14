@@ -29,6 +29,7 @@ const translations = {
   en: {
     navFeatures: "Features",
     navPricing: "Pricing",
+    navBlog: "Blog",
     navCta: "Get Started",
     heroTitle: "Meet Folio,",
     heroSub: "and track every token across every chain.",
@@ -111,6 +112,7 @@ const translations = {
   pt: {
     navFeatures: "Funcionalidades",
     navPricing: "Pre\u00e7os",
+    navBlog: "Blog",
     navCta: "Comece Agora",
     heroTitle: "Conhe\u00e7a o Folio,",
     heroSub: "e rastreie cada token em cada blockchain.",
@@ -481,6 +483,12 @@ export default function FolioV2() {
               className="hover:text-gray-900 transition-colors"
             >
               {t.navPricing}
+            </a>
+            <a
+              href="/blog"
+              className="hover:text-gray-900 transition-colors"
+            >
+              {t.navBlog}
             </a>
             <span className="w-px h-4 bg-gray-200" />
             <button

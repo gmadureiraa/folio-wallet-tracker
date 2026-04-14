@@ -38,15 +38,15 @@ interface Props {
   loading?: boolean
 }
 
-const CARD = 'rounded-xl p-4'
-const CARD_STYLE = { background: '#FFFFFF', border: '1px solid #E5E5E5' }
+const CARD = 'card rounded-2xl p-5'
+const CARD_STYLE = { background: '#FFFFFF', border: '1px solid #F0F0F0' }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+function StatCard({ label, value, sub, color, large }: { label: string; value: string; sub?: string; color?: string; large?: boolean }) {
   return (
-    <div className={CARD} style={CARD_STYLE}>
-      <p className="text-xs mb-2 font-serif" style={{ color: '#A3A3A3' }}>{label}</p>
-      <p className="text-2xl font-bold font-mono" style={{ color: color ?? '#0A0A0A' }}>{value}</p>
-      {sub && <p className="text-xs mt-1" style={{ color: '#A3A3A3' }}>{sub}</p>}
+    <div className="card rounded-2xl p-5 card-hover" style={CARD_STYLE}>
+      <p className="text-[11px] mb-2 font-medium uppercase tracking-wider" style={{ color: '#A3A3A3' }}>{label}</p>
+      <p className={`${large ? 'text-3xl' : 'text-2xl'} font-bold font-mono leading-tight`} style={{ color: color ?? '#0A0A0A' }}>{value}</p>
+      {sub && <p className="text-xs mt-1.5" style={{ color: '#A3A3A3' }}>{sub}</p>}
     </div>
   )
 }
@@ -188,12 +188,14 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
           alt="No wallets"
           className="max-w-xs mb-6 opacity-90"
         />
-        <h2 className="text-xl font-semibold mb-2 font-serif" style={{ color: '#0A0A0A' }}>No wallets tracked yet</h2>
-        <p className="text-sm mb-6" style={{ color: '#A3A3A3' }}>Add a wallet address to start tracking your portfolio</p>
+        <h2 className="text-2xl font-semibold mb-2 font-serif" style={{ color: '#0A0A0A' }}>No wallets tracked yet</h2>
+        <p className="text-sm mb-8 max-w-md" style={{ color: '#A3A3A3' }}>Paste any EVM or Solana wallet address to automatically scan across 16 blockchains</p>
         <button
           onClick={onAddWallet}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors hover:bg-gray-800"
+          className="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all"
           style={{ background: '#0A0A0A', border: '1px solid #0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
         >
           <PlusCircle size={16} />
           Add Wallet
@@ -216,7 +218,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
 
       {/* Stats row — react to selected period */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Total Value" value={fmtUSD(totalValue)} sub="Across all chains" />
+        <StatCard label="Total Value" value={fmtUSD(totalValue)} sub="Across all chains" large />
         <StatCard
           label={`${PERIODS.find(p => p.days === chartPeriod)?.label || ''} Change`}
           value={chartData.length >= 2
@@ -238,7 +240,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Portfolio chart - REAL DATA */}
-        <div className="lg:col-span-2 rounded-xl p-5" style={CARD_STYLE}>
+        <div className="lg:col-span-2 card rounded-2xl p-5" style={CARD_STYLE}>
           {/* Header with period selector */}
           <div className="flex items-center justify-between mb-1">
             <div>
@@ -308,7 +310,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
         </div>
 
         {/* Chain breakdown */}
-        <div className="rounded-xl p-4" style={CARD_STYLE}>
+        <div className="card rounded-2xl p-5" style={CARD_STYLE}>
           <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif mb-4">By Chain</h3>
           {chainBreakdown.length > 0 ? (
             <>
@@ -328,10 +330,16 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
               </div>
               <div className="space-y-1.5">
                 {chainBreakdown.sort((a, b) => b.value - a.value).map(({ chain, value, color }) => (
-                  <div key={chain} className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-                    <span className="text-xs flex-1 capitalize" style={{ color: '#737373' }}>{CHAINS[chain as keyof typeof CHAINS]?.name ?? chain}</span>
-                    <span className="text-xs font-mono" style={{ color: '#0A0A0A' }}>{((value / totalValue) * 100).toFixed(1)}%</span>
+                  <div key={chain} className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors" style={{ background: 'transparent' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = color + '08' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={{ background: color + '15', border: `1px solid ${color}25` }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+                      <span className="text-[10px] font-semibold" style={{ color }}>{CHAINS[chain as keyof typeof CHAINS]?.name ?? chain}</span>
+                    </span>
+                    <span className="text-[10px] font-mono flex-1 text-right" style={{ color: '#737373' }}>{fmtUSD(value, true)}</span>
+                    <span className="text-[10px] font-mono font-semibold" style={{ color: '#0A0A0A' }}>{((value / totalValue) * 100).toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -344,7 +352,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
 
       {/* Token sparklines - 7d mini charts */}
       {top5Sparkline.length > 0 && (
-        <div className="rounded-xl p-4" style={CARD_STYLE}>
+        <div className="card rounded-2xl p-5" style={CARD_STYLE}>
           <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif mb-4">Token Performance ({PERIODS.find(p => p.days === chartPeriod)?.label || '30d'})</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {top5Sparkline.map(t => (
@@ -366,7 +374,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Top holdings */}
-        <div className="rounded-xl p-4" style={CARD_STYLE}>
+        <div className="card rounded-2xl p-5" style={CARD_STYLE}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif">Top Holdings</h3>
             <button onClick={() => onNavigate('portfolio')} className="flex items-center gap-1 text-xs" style={{ color: '#A3A3A3' }}>
@@ -402,7 +410,7 @@ export function Dashboard({ wallets, portfolios, totalValue, change24h, change24
         </div>
 
         {/* Wallets */}
-        <div className="rounded-xl p-4" style={CARD_STYLE}>
+        <div className="card rounded-2xl p-5" style={CARD_STYLE}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-[#0A0A0A] font-serif">Wallets</h3>
             <button onClick={() => onNavigate('wallets')} className="flex items-center gap-1 text-xs" style={{ color: '#A3A3A3' }}>

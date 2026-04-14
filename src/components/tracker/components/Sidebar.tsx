@@ -99,8 +99,8 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
 
   return (
     <aside
-      className="w-52 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-hidden"
-      style={{ background: '#FFFFFF', borderRight: '1px solid #E5E5E5' }}
+      className="w-52 flex-shrink-0 flex flex-col h-screen sticky top-0 overflow-hidden transition-all duration-200"
+      style={{ background: '#FAFAFA', borderRight: '1px solid #F0F0F0' }}
     >
       <div className="px-5 py-4" style={{ borderBottom: '1px solid #F0F0F0' }}>
         <div className="flex items-center gap-3">
@@ -108,16 +108,16 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
           <div>
             <p className="text-sm font-semibold leading-none tracking-tight font-serif" style={{ color: '#0A0A0A' }}>Folio</p>
             <p className="text-[10px] mt-0.5" style={{ color: '#A3A3A3' }}>
-              {walletCount > 0 ? `${walletCount} wallet${walletCount !== 1 ? 's' : ''}` : 'Multi-chain'}
+              {walletCount > 0 ? `${walletCount} wallet${walletCount !== 1 ? 's' : ''} tracked` : 'Multi-chain tracker'}
             </p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 overflow-y-auto pb-4 space-y-4 pt-3">
+      <nav className="flex-1 px-3 overflow-y-auto pb-4 space-y-5 pt-4">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
-            <p className="px-3 pb-1 text-[9px] font-bold uppercase tracking-widest" style={{ color: '#A3A3A3' }}>
+            <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: group.label === 'Pro' ? '#627EEA' : '#B0B0B0' }}>
               {group.label}
             </p>
             <div className="space-y-0.5">
@@ -129,37 +129,39 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
                   <button
                     key={item.id}
                     onClick={() => onNavigate(item.id)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-100 text-left relative group"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-left relative group"
                     style={{
-                      background: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
+                      background: isActive ? '#FFFFFF' : 'transparent',
                       color: isActive ? '#0A0A0A' : isLocked ? '#B0B0B0' : '#737373',
                       opacity: isLocked ? 0.75 : 1,
+                      boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
+                      border: isActive ? '1px solid #F0F0F0' : '1px solid transparent',
+                      cursor: 'pointer',
                     }}
-                    onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F5F5F5' }}
-                    onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
+                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.borderColor = '#F0F0F0' } }}
+                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent' } }}
                   >
                     {isActive && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full" style={{ background: '#22C55E' }} />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full" style={{ background: '#22C55E' }} />
                     )}
                     <Icon
                       size={15}
-                      className={`flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-50 group-hover:opacity-75'}`}
+                      className={`flex-shrink-0 transition-all duration-150 ${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'}`}
                     />
                     <span className="flex-1 text-xs">{item.label}</span>
                     {item.pro && !isPro && (
                       <span
-                        className="text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
+                        className="text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider"
                         style={{
-                          background: 'linear-gradient(135deg, rgba(98,126,234,0.12) 0%, rgba(153,69,255,0.12) 100%)',
+                          background: 'linear-gradient(135deg, rgba(98,126,234,0.10) 0%, rgba(153,69,255,0.10) 100%)',
                           color: '#627EEA',
-                          border: '1px solid rgba(98,126,234,0.2)',
                         }}
                       >
                         PRO
                       </span>
                     )}
                     {item.shortcut && (
-                      <span className="text-[9px] font-mono opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: '#A3A3A3' }}>
+                      <span className="text-[9px] font-mono opacity-0 group-hover:opacity-60 transition-opacity duration-150" style={{ color: '#A3A3A3' }}>
                         {item.shortcut}
                       </span>
                     )}
@@ -173,8 +175,8 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
         {/* Chain status section */}
         {fundedChains.length > 0 && (
           <div>
-            <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-widest" style={{ color: '#A3A3A3' }}>
-              Active Chains ({fundedChains.length})
+            <p className="px-3 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em]" style={{ color: '#B0B0B0' }}>
+              Chains ({fundedChains.length})
             </p>
             <div className="px-3 flex flex-wrap gap-1">
               {fundedChains.map(chainId => {
@@ -183,8 +185,8 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
                 return (
                   <span
                     key={chainId}
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-medium"
-                    style={{ background: chain.color + '12', color: chain.color, border: `1px solid ${chain.color}22` }}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-semibold transition-all duration-150"
+                    style={{ background: chain.color + '10', color: chain.color, border: `1px solid ${chain.color}18` }}
                     title={chain.name}
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: chain.color }} />
@@ -200,12 +202,12 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
       <div className="px-3 py-3 space-y-2" style={{ borderTop: '1px solid #F0F0F0' }}>
         <a
           href="/app/settings"
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-100 text-left no-underline group"
-          style={{ color: '#737373' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#F5F5F5' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-left no-underline group"
+          style={{ color: '#737373', cursor: 'pointer' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.color = '#0A0A0A' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#737373' }}
         >
-          <Settings size={15} className="flex-shrink-0 opacity-50 group-hover:opacity-75" />
+          <Settings size={15} className="flex-shrink-0 opacity-50 group-hover:opacity-75 transition-opacity" />
           <span className="text-xs">Settings</span>
         </a>
         <div className="flex items-center justify-between px-3">
@@ -214,9 +216,9 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
               <span className="pulse-dot absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: '#22C55E' }} />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#22C55E' }} />
             </span>
-            <span className="text-[11px]" style={{ color: '#A3A3A3' }}>Live</span>
+            <span className="text-[10px] font-medium" style={{ color: '#A3A3A3' }}>Live</span>
           </div>
-          <span className="text-[10px]" style={{ color: '#A3A3A3' }}>1-9 to nav</span>
+          <span className="text-[9px] font-mono" style={{ color: '#C0C0C0' }}>1-9</span>
         </div>
       </div>
     </aside>

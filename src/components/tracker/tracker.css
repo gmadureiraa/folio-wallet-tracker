@@ -199,3 +199,79 @@
 .tracker-app .total-row {
   background: linear-gradient(180deg, #F9FAFB 0%, #F5F5F5 100%);
 }
+
+/* ---- Consistent card styling ---- */
+.tracker-app .card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tracker-app .card:hover {
+  border-color: #e0e0e0;
+}
+
+/* ---- Dark mode ---- */
+.dark .tracker-app {
+  --bg-base:    #09090B;
+  --bg-surface: #111118;
+  --bg-card:    #111118;
+  --bg-hover:   #1A1A24;
+  --bg-active:  #22222E;
+  --border:     #1E1E2A;
+  --border-sub: #1A1A24;
+  --text-1:     #FAFAFA;
+  --text-2:     #A1A1AA;
+  --text-3:     #71717A;
+  background-color: #09090B;
+  color: #FAFAFA;
+}
+
+.dark .tracker-app .card {
+  background: #111118;
+  border-color: #1e1e2a;
+}
+.dark .tracker-app .card:hover {
+  border-color: #2e2e3a;
+}
+
+.dark .tracker-app .portfolio-row:hover {
+  background-color: #1A1A24 !important;
+}
+
+.dark .tracker-app .total-row {
+  background: linear-gradient(180deg, #111118 0%, #0D0D12 100%);
+}
+
+.dark .tracker-app .skeleton {
+  background: linear-gradient(90deg, #1A1A24 25%, #22222E 50%, #1A1A24 75%);
+  background-size: 400% 100%;
+}
+
+.dark .tracker-app ::-webkit-scrollbar-thumb { background: #2E2E3A; }
+.dark .tracker-app ::-webkit-scrollbar-thumb:hover { background: #3E3E4A; }
+
+/* ---- Skeleton pulse loading ---- */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.tracker-app .skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: #F0F0F0;
+  border-radius: 6px;
+}
+.dark .tracker-app .skeleton-pulse {
+  background: #1E1E2A;
+}
+
+/* ---- Add wallet modal backdrop ---- */
+.tracker-app .modal-backdrop {
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.3);
+}
+
+/* ---- Smooth number transitions ---- */
+.tracker-app .number-transition {
+  transition: color 0.3s ease;
+}

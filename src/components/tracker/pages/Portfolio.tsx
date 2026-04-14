@@ -267,7 +267,7 @@ export function Portfolio({ wallets, portfolios }: Props) {
 
       {/* Chain distribution bar (like DeBank) */}
       {chainBreakdown.length > 0 && (
-        <div className="mb-4 rounded-xl p-3" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+        <div className="mb-4 card rounded-2xl p-4" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0' }}>
           <div className="flex items-center gap-1.5 h-2.5 rounded-full overflow-hidden mb-2" style={{ background: '#F0F0F0' }}>
             {chainBreakdown.map(({ chain, pct }) => (
               <div
@@ -342,7 +342,7 @@ export function Portfolio({ wallets, portfolios }: Props) {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+      <div className="card rounded-2xl overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0' }}>
         {/* Header row */}
         <div
           className="grid items-center px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider"

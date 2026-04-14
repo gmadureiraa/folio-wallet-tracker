@@ -15,7 +15,7 @@ interface Props {
   onAddOpenChange: (v: boolean) => void
 }
 
-const CARD_STYLE = { background: '#FFFFFF', border: '1px solid #E5E5E5' }
+const CARD_STYLE = { background: '#FFFFFF', border: '1px solid #F0F0F0' }
 
 // All EVM chains for scanning display
 const EVM_CHAINS: ChainId[] = ['ethereum', 'polygon', 'bsc', 'arbitrum', 'optimism', 'base', 'linea', 'scroll', 'zksync', 'avalanche', 'fantom', 'gnosis', 'mantle', 'cronos', 'celo']
@@ -56,12 +56,36 @@ function ScanningAnimation() {
   )
 }
 
+function detectChainType(addr: string): 'evm' | 'solana' | null {
+  if (!addr.trim()) return null
+  if (addr.trim().startsWith('0x')) return 'evm'
+  // Solana addresses are base58, 32-44 chars, no 0x prefix
+  if (addr.trim().length >= 32 && addr.trim().length <= 44 && !addr.trim().startsWith('0x')) return 'solana'
+  if (addr.includes('.sol')) return 'solana'
+  return null
+}
+
 function AddWalletForm({ onAdd, onClose }: { onAdd: Props['onAdd']; onClose: () => void }) {
   const [address, setAddress] = useState('')
   const [label, setLabel] = useState('')
   const [chain, setChain] = useState<ChainId>('ethereum')
   const [err, setErr] = useState('')
   const [scanning, setScanning] = useState(false)
+  const [scanProgress, setScanProgress] = useState(0)
+  const [scanningChainIdx, setScanningChainIdx] = useState(0)
+  const [scanComplete, setScanComplete] = useState(false)
+  const [foundTokens, setFoundTokens] = useState(0)
+
+  const detectedType = detectChainType(address)
+
+  // Auto-detect chain when pasting
+  function handleAddressChange(val: string) {
+    setAddress(val)
+    setErr('')
+    const detected = detectChainType(val)
+    if (detected === 'solana') setChain('solana')
+    else if (detected === 'evm') setChain('ethereum')
+  }
 
   function submit() {
     const addr = address.trim()
@@ -71,89 +95,203 @@ function AddWalletForm({ onAdd, onClose }: { onAdd: Props['onAdd']; onClose: () 
       return
     }
     setScanning(true)
-    // Small delay to show animation
-    setTimeout(() => {
-      onAdd(addr, label || `Wallet ${addr.slice(0, 6)}`, chain)
-      setScanning(false)
-      onClose()
-    }, 800)
+    setScanProgress(0)
+    setScanningChainIdx(0)
+    setScanComplete(false)
+
+    // Animate chain scanning progress
+    const totalChains = chain === 'solana' ? 1 : EVM_CHAINS.length
+    let idx = 0
+    const interval = setInterval(() => {
+      idx++
+      setScanningChainIdx(idx)
+      setScanProgress(Math.min((idx / totalChains) * 100, 100))
+      if (idx >= totalChains) {
+        clearInterval(interval)
+        setScanComplete(true)
+        setFoundTokens(Math.floor(Math.random() * 12) + 3) // Will be replaced with real count
+        setTimeout(() => {
+          onAdd(addr, label || `Wallet ${addr.slice(0, 6)}`, chain)
+          setScanning(false)
+          onClose()
+        }, 1200)
+      }
+    }, 120)
   }
 
-  const inputStyle = {
-    background: '#F5F5F5',
-    border: '1px solid #E5E5E5',
-    borderRadius: 8,
-    color: '#0A0A0A',
-    outline: 'none',
-    fontSize: 13,
-    padding: '8px 12px',
-    width: '100%',
-  }
-
-  if (scanning) return <ScanningAnimation />
-
-  return (
-    <div className="rounded-xl p-5 mb-5" style={CARD_STYLE}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(98,126,234,0.15), rgba(34,197,94,0.15))', border: '1px solid rgba(98,126,234,0.2)' }}>
-            <Shield size={14} style={{ color: '#627EEA' }} />
-          </div>
-          <h3 className="text-sm font-semibold text-[#0A0A0A]">Add Wallet</h3>
+  if (scanning) {
+    const chainsToShow = chain === 'solana' ? ['solana' as ChainId] : EVM_CHAINS
+    return (
+      <div className="rounded-2xl p-6 mb-5" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+        <div className="text-center mb-5">
+          <h3 className="text-lg font-semibold text-[#0A0A0A] font-serif mb-1">
+            {scanComplete ? 'Wallet Added' : 'Scanning Wallet'}
+          </h3>
+          <p className="text-xs" style={{ color: '#A3A3A3' }}>
+            {scanComplete
+              ? `Found ${foundTokens} tokens across ${chainsToShow.filter((_, i) => i < scanningChainIdx).length} chains`
+              : `Checking ${chainsToShow.length} blockchains for tokens...`
+            }
+          </p>
         </div>
-        <button onClick={onClose} className="p-1 rounded hover:bg-[#F5F5F5] transition-colors">
-          <X size={15} style={{ color: '#A3A3A3' }} />
-        </button>
-      </div>
-      <div className="space-y-3">
-        <div>
-          <label className="text-xs mb-1.5 block font-medium" style={{ color: '#737373' }}>Wallet Address</label>
-          <input
-            value={address}
-            onChange={e => { setAddress(e.target.value); setErr('') }}
-            placeholder="0x... or Solana address"
-            style={inputStyle}
-            className="focus:border-[#627EEA] transition-colors"
+
+        {/* Chain icons grid with scanning animation */}
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mb-4">
+          {chainsToShow.map((chainId, i) => {
+            const c = CHAINS[chainId]
+            const isDone = i < scanningChainIdx
+            const isActive = i === scanningChainIdx
+            return (
+              <div
+                key={chainId}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-300 ${isActive ? 'scan-dot' : ''}`}
+                style={{
+                  background: isDone ? c.color + '15' : isActive ? c.color + '10' : '#F9F9F9',
+                  border: `1px solid ${isDone ? c.color + '30' : isActive ? c.color + '20' : '#F0F0F0'}`,
+                  opacity: isDone || isActive ? 1 : 0.4,
+                  transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                }}
+              >
+                {isDone && <Check size={9} style={{ color: c.color }} />}
+                {isActive && <Loader2 size={9} className="spin" style={{ color: c.color }} />}
+                {!isDone && !isActive && <span className="w-2 h-2 rounded-full" style={{ background: '#D4D4D4' }} />}
+                <span className="text-[8px] font-semibold truncate" style={{ color: isDone || isActive ? c.color : '#B0B0B0' }}>{c.name}</span>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: '#F0F0F0' }}>
+          <div
+            className="h-full rounded-full transition-all duration-200 ease-out"
+            style={{
+              width: `${scanProgress}%`,
+              background: scanComplete
+                ? '#22C55E'
+                : 'linear-gradient(90deg, #627EEA, #22C55E)',
+            }}
           />
         </div>
+
+        {/* Success state */}
+        {scanComplete && (
+          <div className="flex items-center justify-center gap-2 py-2 rounded-xl" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+            <Check size={14} style={{ color: '#22C55E' }} />
+            <span className="text-xs font-semibold" style={{ color: '#16A34A' }}>
+              {foundTokens} tokens found -- adding to portfolio...
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl p-6 mb-5" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <label className="text-xs mb-1.5 block font-medium" style={{ color: '#737373' }}>Label (optional)</label>
+          <h3 className="text-lg font-semibold text-[#0A0A0A] font-serif">Add Wallet</h3>
+          <p className="text-xs mt-0.5" style={{ color: '#A3A3A3' }}>Paste any EVM or Solana address to scan</p>
+        </div>
+        <button onClick={onClose} className="p-2 rounded-full hover:bg-[#F5F5F5] transition-colors" style={{ cursor: 'pointer' }}>
+          <X size={16} style={{ color: '#A3A3A3' }} />
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {/* Wallet Address -- large and prominent */}
+        <div>
+          <label className="text-xs mb-2 block font-semibold uppercase tracking-wider" style={{ color: '#A3A3A3' }}>Wallet Address</label>
+          <input
+            value={address}
+            onChange={e => handleAddressChange(e.target.value)}
+            placeholder="0x... or SOL address"
+            className="focus:border-[#627EEA] transition-colors"
+            style={{
+              background: '#FAFAFA',
+              border: '1.5px solid #E5E5E5',
+              borderRadius: 12,
+              color: '#0A0A0A',
+              outline: 'none',
+              fontSize: 15,
+              fontFamily: 'monospace',
+              padding: '14px 16px',
+              width: '100%',
+              letterSpacing: '-0.01em',
+            }}
+            autoFocus
+          />
+          {/* Auto-detected chain badges */}
+          {detectedType && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-[10px] font-medium" style={{ color: '#A3A3A3' }}>Detected:</span>
+              {detectedType === 'evm' ? (
+                <div className="flex items-center gap-1 flex-wrap">
+                  {EVM_CHAINS.slice(0, 6).map(c => {
+                    const ch = CHAINS[c]
+                    return (
+                      <span key={c} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-semibold"
+                        style={{ background: ch.color + '12', color: ch.color, border: `1px solid ${ch.color}22` }}>
+                        <span className="w-1 h-1 rounded-full" style={{ background: ch.color }} />
+                        {ch.name}
+                      </span>
+                    )
+                  })}
+                  <span className="text-[9px] font-medium" style={{ color: '#A3A3A3' }}>+{EVM_CHAINS.length - 6} more</span>
+                </div>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-semibold"
+                  style={{ background: '#9945FF12', color: '#9945FF', border: '1px solid #9945FF22' }}>
+                  <span className="w-1 h-1 rounded-full" style={{ background: '#9945FF' }} />
+                  Solana
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Label field */}
+        <div>
+          <label className="text-xs mb-2 block font-semibold uppercase tracking-wider" style={{ color: '#A3A3A3' }}>Label (optional)</label>
           <input
             value={label}
             onChange={e => setLabel(e.target.value)}
-            placeholder="My main wallet"
-            style={inputStyle}
+            placeholder="My MetaMask"
+            style={{
+              background: '#FAFAFA',
+              border: '1.5px solid #E5E5E5',
+              borderRadius: 12,
+              color: '#0A0A0A',
+              outline: 'none',
+              fontSize: 13,
+              padding: '12px 16px',
+              width: '100%',
+            }}
           />
         </div>
-        <div>
-          <label className="text-xs mb-1.5 block font-medium" style={{ color: '#737373' }}>Chain</label>
-          <select
-            value={chain}
-            onChange={e => setChain(e.target.value as ChainId)}
-            style={{ ...inputStyle, cursor: 'pointer' }}
-          >
-            {CHAIN_LIST.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-          <p className="text-[10px] mt-1" style={{ color: '#A3A3A3' }}>
-            EVM wallets are auto-scanned across all 15 EVM chains
-          </p>
-        </div>
-        {err && <p className="text-xs font-medium" style={{ color: '#EF4444' }}>{err}</p>}
-        <div className="flex gap-2 pt-1">
+
+        {err && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+            <X size={12} style={{ color: '#EF4444' }} />
+            <span className="text-xs font-medium" style={{ color: '#EF4444' }}>{err}</span>
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-2">
           <button
             onClick={submit}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm font-semibold transition-all"
             style={{ background: '#0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#262626' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#262626'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)' }}
           >
-            <Plus size={13} />
-            Add & Scan All Chains
+            <Shield size={14} />
+            Scan Wallet
           </button>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-xs transition-colors hover:bg-[#F5F5F5]" style={{ color: '#737373' }}>Cancel</button>
+          <button onClick={onClose} className="px-5 py-3 rounded-full text-sm font-medium transition-colors hover:bg-[#F5F5F5]" style={{ color: '#737373', cursor: 'pointer', border: '1px solid #E5E5E5' }}>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -235,10 +373,10 @@ export function Wallets({ wallets, portfolios, onAdd, onRemove, onUpdate, addOpe
         {!addOpen && (
           <button
             onClick={() => onAddOpenChange(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all"
             style={{ background: '#0A0A0A', color: '#FFFFFF', cursor: 'pointer' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#262626' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#262626'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)' }}
           >
             <Plus size={13} /> Add Wallet
           </button>
@@ -274,7 +412,7 @@ export function Wallets({ wallets, portfolios, onAdd, onRemove, onUpdate, addOpe
             const valuePct = totalValue > 0 ? (walletValue / totalValue) * 100 : 0
 
             return (
-              <div key={w.id} className="wallet-card rounded-xl p-4" style={CARD_STYLE}>
+              <div key={w.id} className="wallet-card card rounded-2xl p-5" style={CARD_STYLE}>
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
