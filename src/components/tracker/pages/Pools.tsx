@@ -33,7 +33,9 @@ const CATEGORIES: { id: Category; label: string; icon: typeof Shield; desc: stri
   { id: 'all', label: 'Todos', icon: Filter, desc: 'Todas as pools disponiveis', color: '#737373' },
 ]
 
-const CHAIN_FILTER_LIST: ChainId[] = ['ethereum', 'arbitrum', 'polygon', 'optimism', 'base', 'bsc', 'avalanche']
+const CHAIN_FILTER_LIST: ChainId[] = ['ethereum', 'arbitrum', 'polygon', 'optimism', 'base', 'bsc', 'avalanche', 'linea', 'scroll', 'zksync', 'fantom', 'gnosis']
+
+type SortKey = 'default' | 'apy-desc' | 'apy-asc' | 'tvl-desc' | 'tvl-asc'
 
 function getRiskLevel(pool: Pool): { label: string; color: string } {
   if (pool.stablecoin && pool.tvlUsd > 50_000_000) return { label: 'Very Safe', color: '#22C55E' }
@@ -56,6 +58,7 @@ export function Pools(_props: PoolsProps) {
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState<Category>('recommended')
   const [chainFilter, setChainFilter] = useState<string>('all')
+  const [sortKey, setSortKey] = useState<SortKey>('default')
 
   useEffect(() => {
     async function load() {
@@ -112,17 +115,50 @@ export function Pools(_props: PoolsProps) {
         result = result.sort((a, b) => b.tvlUsd - a.tvlUsd)
     }
 
-    return result.slice(0, 50)
-  }, [pools, category, chainFilter])
+    // Apply manual sort override
+    if (sortKey !== 'default') {
+      switch (sortKey) {
+        case 'apy-desc': result = result.sort((a, b) => b.apy - a.apy); break
+        case 'apy-asc': result = result.sort((a, b) => a.apy - b.apy); break
+        case 'tvl-desc': result = result.sort((a, b) => b.tvlUsd - a.tvlUsd); break
+        case 'tvl-asc': result = result.sort((a, b) => a.tvlUsd - b.tvlUsd); break
+      }
+    }
+
+    return result.slice(0, 80)
+  }, [pools, category, chainFilter, sortKey])
 
   const avgApy = filtered.length > 0 ? filtered.reduce((s, p) => s + p.apy, 0) / filtered.length : 0
   const totalTvl = filtered.reduce((s, p) => s + p.tvlUsd, 0)
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-3">
-        <Loader2 size={24} className="animate-spin" style={{ color: '#A3A3A3' }} />
-        <p className="text-sm" style={{ color: '#A3A3A3' }}>Loading 17,000+ pools from DeFiLlama...</p>
+      <div className="p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <Loader2 size={20} className="animate-spin" style={{ color: '#A3A3A3' }} />
+          <div>
+            <p className="text-sm font-medium text-[#0A0A0A]">Loading pools from DeFiLlama...</p>
+            <p className="text-xs" style={{ color: '#A3A3A3' }}>Fetching 17,000+ pools across all chains</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: '#FFFFFF', border: '1px solid #E5E5E5' }}>
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-4 rounded bg-gray-100" />
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="w-6 h-6 rounded-full bg-gray-100" />
+                  <div>
+                    <div className="w-24 h-3.5 rounded bg-gray-100 mb-1" />
+                    <div className="w-16 h-2.5 rounded bg-gray-50" />
+                  </div>
+                </div>
+                <div className="w-16 h-4 rounded bg-gray-100" />
+                <div className="w-20 h-4 rounded bg-gray-100 hidden sm:block" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -167,6 +203,23 @@ export function Pools(_props: PoolsProps) {
           <span className="text-[10px]" style={{ color: '#A3A3A3' }}>Avg APY: <strong className="text-[#0A0A0A]">{avgApy.toFixed(1)}%</strong></span>
           <span className="text-[10px]" style={{ color: '#A3A3A3' }}>TVL: <strong className="text-[#0A0A0A]">${totalTvl > 1e9 ? (totalTvl / 1e9).toFixed(1) + 'B' : (totalTvl / 1e6).toFixed(0) + 'M'}</strong></span>
         </div>
+      </div>
+
+      {/* Sort control */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-medium" style={{ color: '#A3A3A3' }}>Sort by:</span>
+        <select
+          value={sortKey}
+          onChange={e => setSortKey(e.target.value as SortKey)}
+          className="px-2.5 py-1 rounded-lg text-[11px] outline-none cursor-pointer"
+          style={{ background: '#F5F5F5', border: '1px solid #E5E5E5', color: '#737373' }}
+        >
+          <option value="default">Category default</option>
+          <option value="apy-desc">APY (high to low)</option>
+          <option value="apy-asc">APY (low to high)</option>
+          <option value="tvl-desc">TVL (high to low)</option>
+          <option value="tvl-asc">TVL (low to high)</option>
+        </select>
       </div>
 
       {/* Chain filter */}

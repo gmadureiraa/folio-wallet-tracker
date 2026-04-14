@@ -100,9 +100,19 @@ export function ProFeatureGate({
   const { isPro } = usePlan();
   if (isPro) return <>{children}</>;
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-6 p-8 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-        <Lock className="w-7 h-7 text-gray-400" />
+    <div className="flex flex-col items-center justify-center h-full gap-6 p-8 text-center relative overflow-hidden">
+      {/* Stipple wallet decoration */}
+      <div className="relative w-20 h-20 opacity-60 mb-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/wallet-v5.png"
+          alt=""
+          className="w-full h-full object-contain"
+          aria-hidden="true"
+        />
+      </div>
+      <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
+        <Lock className="w-5 h-5 text-gray-400" />
       </div>
       <h2 className="text-xl font-bold font-serif text-gray-900">{feature}</h2>
       <p className="text-gray-500 max-w-sm">

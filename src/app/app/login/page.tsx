@@ -52,12 +52,17 @@ export default function LoginPage() {
     }
   };
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   const handleGoogle = async () => {
     setError("");
+    setGoogleLoading(true);
     try {
       await signInWithGoogle();
-    } catch {
-      setError("Failed to start Google sign-in.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to start Google sign-in.";
+      setError(message);
+      setGoogleLoading(false);
     }
   };
 
@@ -76,9 +81,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      {/* Stipple wallet background decoration */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none opacity-[0.04]"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/wallet-v5.png"
+          alt=""
+          className="w-full h-full object-contain"
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Logo */}
-      <div className="flex items-center gap-2.5 mb-10">
+      <div className="relative z-10 flex items-center gap-2.5 mb-10">
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{
@@ -95,7 +113,7 @@ export default function LoginPage() {
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm relative z-10">
         <h1 className="text-2xl font-bold tracking-tight text-center mb-1 font-serif text-gray-900">
           {mode === "login" ? "Welcome back" : "Create your account"}
         </h1>
@@ -119,35 +137,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Social auth buttons */}
-        <div className="space-y-2.5 mb-6">
-          <button
-            onClick={handleGoogle}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
-          >
-            <Globe size={16} className="text-gray-500" />
-            Continue with Google
-          </button>
-
-          <button
-            onClick={handleWallet}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
-          >
-            <Wallet size={16} className="text-gray-500" />
-            Connect Wallet
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 h-px bg-gray-100" />
-          <span className="text-xs text-gray-300 uppercase tracking-wider">
-            or
-          </span>
-          <div className="flex-1 h-px bg-gray-100" />
-        </div>
-
-        {/* Email form */}
+        {/* Email form — primary login method */}
         <form onSubmit={handleEmailSubmit} className="space-y-3 mb-6">
           <div className="relative">
             <Mail
@@ -194,6 +184,45 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-xs text-gray-300 uppercase tracking-wider">
+            or
+          </span>
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+
+        {/* Social auth buttons — secondary */}
+        <div className="space-y-2.5 mb-6">
+          <button
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {googleLoading ? (
+              <Loader2 size={14} className="animate-spin text-gray-400" />
+            ) : (
+              <>
+                <Globe size={16} className="text-gray-400" />
+                Continue with Google
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleWallet}
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-500 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+          >
+            <Wallet size={16} className="text-gray-400" />
+            Connect Wallet
+          </button>
+
+          <p className="text-[10px] text-center text-gray-300 mt-1">
+            Google sign-in may not be available yet. Use email &amp; password above.
+          </p>
+        </div>
+
         {/* Toggle mode */}
         <p className="text-center text-sm text-gray-400">
           {mode === "login" ? (
@@ -225,7 +254,7 @@ export default function LoginPage() {
             href="/app"
             className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Continue without account →
+            Track a wallet without account →
           </Link>
         </div>
       </div>

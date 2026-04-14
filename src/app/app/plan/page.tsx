@@ -190,9 +190,22 @@ export default function PlanPage() {
     "flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 bg-white transition-colors hover:bg-gray-50 hover:border-gray-300 cursor-pointer";
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Stipple wallet background decoration */}
+      <div
+        className="absolute top-24 right-0 w-[300px] h-[300px] pointer-events-none opacity-[0.04] translate-x-1/3"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/wallet-v5.png"
+          alt=""
+          className="w-full h-full object-contain"
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Top bar */}
-      <div className="max-w-lg mx-auto px-4 pt-8 pb-4">
+      <div className="max-w-lg mx-auto px-4 pt-8 pb-4 relative z-10">
         <Link
           href="/app"
           className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-8"
@@ -219,7 +232,7 @@ export default function PlanPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pb-16">
+      <div className="max-w-lg mx-auto px-4 pb-16 relative z-10">
         {/* ── Already Pro ── */}
         {isPro && step === "select-plan" && (
           <div className="text-center py-12 space-y-4">

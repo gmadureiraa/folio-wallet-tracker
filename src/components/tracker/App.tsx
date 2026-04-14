@@ -30,9 +30,14 @@ import { fetchRealDefiPositions } from './lib/realDefi'
 import { ScanProgress, type ScanStep } from './components/ScanProgress'
 import type { PageId, WalletPortfolio, Transaction, NFTItem, DeFiPosition, TokenPosition, ChainId } from './types'
 
-function App() {
+interface AppProps {
+  initialAddress?: string
+}
+
+function App({ initialAddress }: AppProps) {
   const [currentPage, setCurrentPage] = useState<PageId>('dashboard')
   const [addWalletOpen, setAddWalletOpen] = useState(false)
+  const [initialAdded, setInitialAdded] = useState(false)
 
   const { wallets, addWallet, removeWallet, updateWallet } = useWallets()
   const { prices, priceMap, lastUpdated, refetch } = usePrices()
@@ -48,6 +53,17 @@ function App() {
   const [scanSteps, setScanSteps] = useState<ScanStep[]>([])
   const [scanVisible, setScanVisible] = useState(false)
   const [scanStatus, setScanStatus] = useState('')
+
+  // Auto-add initial address from guest flow (once)
+  useEffect(() => {
+    if (initialAddress && !initialAdded && wallets.length === 0) {
+      const chain: ChainId = initialAddress.toLowerCase().endsWith('.sol') || (!initialAddress.startsWith('0x') && initialAddress.length < 44 && !initialAddress.includes('.'))
+        ? 'solana'
+        : 'ethereum'
+      addWallet(initialAddress, 'My Wallet', chain)
+      setInitialAdded(true)
+    }
+  }, [initialAddress, initialAdded, wallets.length, addWallet])
 
   // All EVM chains to auto-scan for each wallet
   const EVM_CHAINS: ChainId[] = ['ethereum', 'polygon', 'bsc', 'arbitrum', 'optimism', 'base', 'linea', 'scroll', 'zksync', 'avalanche', 'fantom', 'gnosis', 'mantle', 'cronos', 'celo']

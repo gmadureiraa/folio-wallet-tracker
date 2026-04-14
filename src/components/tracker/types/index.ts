@@ -25,6 +25,7 @@ export interface ChainConfig {
   color: string
   explorer: string
   coingeckoId: string
+  rpcUrl?: string
 }
 
 // ─── Wallet ───────────────────────────────────────────────────────────────────

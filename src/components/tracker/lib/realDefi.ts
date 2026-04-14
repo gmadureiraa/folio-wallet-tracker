@@ -9,6 +9,14 @@ const RPC: Record<string, string> = {
   base: 'https://mainnet.base.org',
   bsc: 'https://bsc-dataseed.binance.org',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  linea: 'https://rpc.linea.build',
+  scroll: 'https://rpc.scroll.io',
+  zksync: 'https://mainnet.era.zksync.io',
+  mantle: 'https://rpc.mantle.xyz',
+  gnosis: 'https://rpc.gnosischain.com',
+  fantom: 'https://rpc.ftm.tools',
+  cronos: 'https://evm.cronos.org',
+  celo: 'https://forno.celo.org',
 }
 
 async function ethCall(rpc: string, to: string, data: string): Promise<string> {
@@ -79,6 +87,38 @@ const DEFI_CHECKS: ProtocolCheck[] = [
   // Stargate (LP)
   { protocol: 'Stargate', type: 'lp', token: 'S*USDC', symbol: 'S*USDC', contract: '0x1205f31718499dBf1fCa446663B532Ef87481fe1', decimals: 6, chain: 'ethereum', apy: 3.5, underlying: 'USDC', logo: 'https://icons.llama.fi/stargate.png' },
   { protocol: 'Stargate', type: 'lp', token: 'S*USDT', symbol: 'S*USDT', contract: '0x38EA452219524Bb87e18dE1C24D3bB59510BD783', decimals: 6, chain: 'ethereum', apy: 3.2, underlying: 'USDT', logo: 'https://icons.llama.fi/stargate.png' },
+
+  // Curve (LP)
+  { protocol: 'Curve', type: 'lp', token: '3Crv', symbol: '3Crv', contract: '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', decimals: 18, chain: 'ethereum', apy: 2.5, underlying: 'USDC', logo: 'https://icons.llama.fi/curve.png' },
+  { protocol: 'Curve', type: 'lp', token: 'crvUSD', symbol: 'crvUSD', contract: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E', decimals: 18, chain: 'ethereum', apy: 5.0, underlying: 'USDC', logo: 'https://icons.llama.fi/curve.png' },
+
+  // MakerDAO / Spark (lending)
+  { protocol: 'Spark', type: 'lending', token: 'sDAI', symbol: 'sDAI', contract: '0x83F20F44975D03b1b09e64809B757c47f942BEeA', decimals: 18, chain: 'ethereum', apy: 5.0, underlying: 'USDC', logo: 'https://icons.llama.fi/spark.png' },
+
+  // EigenLayer (restaking)
+  { protocol: 'EigenLayer', type: 'staking', token: 'eETH', symbol: 'eETH', contract: '0x35fA164735182de50811E8e2E824cFb9B6118ac2', decimals: 18, chain: 'ethereum', apy: 3.8, underlying: 'ETH', logo: 'https://icons.llama.fi/eigenlayer.png' },
+
+  // Convex (farming)
+  { protocol: 'Convex', type: 'farming', token: 'cvxCRV', symbol: 'cvxCRV', contract: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7', decimals: 18, chain: 'ethereum', apy: 8.0, underlying: 'USDC', logo: 'https://icons.llama.fi/convex-finance.png' },
+
+  // Aave V3 on Base
+  { protocol: 'Aave V3', type: 'lending', token: 'aBasUSDC', symbol: 'aUSDC', contract: '0x4e65fE4DbA92790696d040ac24Aa414708F5c0AB', decimals: 6, chain: 'base', apy: 5.5, underlying: 'USDC', logo: 'https://icons.llama.fi/aave-v3.png' },
+  { protocol: 'Aave V3', type: 'lending', token: 'aBasWETH', symbol: 'aWETH', contract: '0xD4a0e0b9149BCee3C920d2E00b5dE09138fd8bb7', decimals: 18, chain: 'base', apy: 2.3, underlying: 'ETH', logo: 'https://icons.llama.fi/aave-v3.png' },
+
+  // Aave V3 on Optimism
+  { protocol: 'Aave V3', type: 'lending', token: 'aOptUSDC', symbol: 'aUSDC', contract: '0x625E7708f30cA75bfd92586e17077590C60eb4cD', decimals: 6, chain: 'optimism', apy: 4.8, underlying: 'USDC', logo: 'https://icons.llama.fi/aave-v3.png' },
+
+  // Aave V3 on Polygon
+  { protocol: 'Aave V3', type: 'lending', token: 'aPolUSDC', symbol: 'aUSDC', contract: '0x625E7708f30cA75bfd92586e17077590C60eb4cD', decimals: 6, chain: 'polygon', apy: 4.3, underlying: 'USDC', logo: 'https://icons.llama.fi/aave-v3.png' },
+
+  // Morpho (lending)
+  { protocol: 'Morpho', type: 'lending', token: 'maUSDC', symbol: 'maUSDC', contract: '0xA5269A8e31B93Ff27B887B56720A25F844db0529', decimals: 6, chain: 'ethereum', apy: 6.2, underlying: 'USDC', logo: 'https://icons.llama.fi/morpho.png' },
+
+  // Coinbase cbETH (staking)
+  { protocol: 'Coinbase', type: 'staking', token: 'cbETH', symbol: 'cbETH', contract: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704', decimals: 18, chain: 'ethereum', apy: 3.0, underlying: 'ETH', logo: 'https://icons.llama.fi/coinbase-wrapped-staked-eth.png' },
+
+  // Frax (staking)
+  { protocol: 'Frax', type: 'staking', token: 'sfrxETH', symbol: 'sfrxETH', contract: '0xac3E018457B222d93114458476f3E3416Abbe38F', decimals: 18, chain: 'ethereum', apy: 3.5, underlying: 'ETH', logo: 'https://icons.llama.fi/frax-ether.png' },
 ]
 
 // Uniswap V3 position manager addresses per chain
@@ -119,6 +159,7 @@ export async function fetchRealDefiPositions(
     // Estimate USD value
     const cgMap: Record<string, string> = {
       ETH: 'ethereum', USDC: 'usd-coin', USDT: 'tether', PENDLE: 'pendle', GMX: 'gmx',
+      CRV: 'curve-dao-token', DAI: 'dai', FRAX: 'frax',
     }
     const cgId = cgMap[check.underlying || ''] || check.underlying?.toLowerCase() || ''
     const price = priceMap[cgId] || (check.underlying === 'USDC' || check.underlying === 'USDT' ? 1 : 0)

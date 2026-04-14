@@ -111,7 +111,7 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
               border: '1px solid rgba(98,126,234,0.35)',
             }}
           >
-            <Zap size={14} style={{ color: '#627EEA' }} />
+            <Wallet size={14} style={{ color: '#627EEA' }} />
           </div>
           <div>
             <p className="text-sm font-semibold leading-none tracking-tight font-serif" style={{ color: '#0A0A0A' }}>Folio</p>

@@ -39,10 +39,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/app` },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/app`,
+          skipBrowserRedirect: false,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error("Google OAuth error:", err);
+      throw new Error("Google login não está disponível no momento. Use email e senha.");
+    }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
