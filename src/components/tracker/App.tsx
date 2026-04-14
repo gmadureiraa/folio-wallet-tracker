@@ -31,6 +31,22 @@ import { ScanProgress, type ScanStep } from './components/ScanProgress'
 import { getCachedPortfolio, isPortfolioCacheStale, setCachedPortfolio } from './lib/cache'
 import type { PageId, WalletPortfolio, Transaction, NFTItem, DeFiPosition, TokenPosition, ChainId } from './types'
 
+/* ═══════════════════════════════════════
+   Coming Soon — replaces half-baked features
+   moved to the roadmap
+   ═══════════════════════════════════════ */
+
+function ComingSoon({ feature, quarter }: { feature: string; quarter: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-6 p-8 text-center">
+      <img src="/folio-empty-state.png" alt="" className="w-32 h-auto opacity-60" />
+      <h2 className="text-xl font-bold font-serif">{feature}</h2>
+      <p className="text-gray-500 max-w-sm">This feature is coming in {quarter}. We&apos;re building it right now.</p>
+      <a href="/roadmap" className="text-sm text-gray-900 underline hover:no-underline">View roadmap &rarr;</a>
+    </div>
+  );
+}
+
 interface AppProps {
   initialAddress?: string
 }
@@ -298,17 +314,17 @@ function App({ initialAddress }: AppProps) {
       case 'alerts':
         return <Alerts prices={prices} />
       case 'whales':
-        return <ProFeatureGate feature="Whale Tracker"><WhaleTracker /></ProFeatureGate>
+        return <ComingSoon feature="Whale Tracker" quarter="Q3 2026" />
       case 'gas':
         return <GasTracker gasEstimates={gasEstimates} loading={gasLoading} />
       case 'dca':
-        return <ProFeatureGate feature="DCA Planner"><DCA portfolios={portfolios} priceMap={priceMap} prices={prices} /></ProFeatureGate>
+        return <ComingSoon feature="DCA Planner" quarter="Q4 2026" />
       case 'goals':
-        return <ProFeatureGate feature="Goals"><Goals portfolios={portfolios} priceMap={priceMap} totalValue={totalValue} /></ProFeatureGate>
+        return <ComingSoon feature="Goals" quarter="Q3 2026" />
       case 'pools':
         return <Pools yields={yields} protocols={protocols} loading={marketLoading} priceMap={priceMap} />
       case 'smart-allocator':
-        return <ProFeatureGate feature="Smart Allocator"><SmartAllocator portfolios={portfolios} priceMap={priceMap} /></ProFeatureGate>
+        return <ComingSoon feature="Smart Allocator" quarter="Q4 2026" />
       default:
         return (
           <div className="flex items-center justify-center h-full">
