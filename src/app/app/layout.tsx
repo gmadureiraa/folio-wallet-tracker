@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "../../lib/theme";
 import { AuthProvider } from "../../lib/auth-context";
+import { PlanProvider } from "../../lib/plan-guard";
 
 export const metadata: Metadata = {
   title: "Dashboard — Folio Wallet Tracker",
@@ -15,7 +16,9 @@ export default function AppLayout({
 }) {
   return (
     <AuthProvider>
-      <ThemeProvider>{children}</ThemeProvider>
+      <PlanProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </PlanProvider>
     </AuthProvider>
   );
 }

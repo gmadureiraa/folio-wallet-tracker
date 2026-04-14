@@ -14,8 +14,10 @@ import {
   Layers,
   Sparkles,
   Settings,
+  Fuel,
 } from 'lucide-react'
 import { CHAINS } from '../lib/chains'
+import { usePlan, isProFeature } from '../../../lib/plan-guard'
 import type { PageId, ChainId } from '../types'
 
 interface NavItem {
@@ -24,6 +26,7 @@ interface NavItem {
   icon: React.ComponentType<{ size?: number; className?: string }>
   badge?: string
   shortcut: string
+  pro?: boolean
 }
 
 interface NavGroup {
@@ -36,34 +39,36 @@ const SHORTCUT_ITEMS: NavItem[] = [
   { id: 'wallets',      label: 'Wallets',     icon: Wallet,          shortcut: '2' },
   { id: 'portfolio',    label: 'Portfolio',   icon: PieChart,        shortcut: '3' },
   { id: 'transactions', label: 'Txns',        icon: ArrowLeftRight,  shortcut: '4' },
-  { id: 'pnl',          label: 'PnL',         icon: TrendingUp,      shortcut: '5' },
-  { id: 'dca',          label: 'DCA',         icon: RefreshCcw,      shortcut: '6' },
-  { id: 'goals',        label: 'Goals',       icon: Target,          shortcut: '7' },
-  { id: 'pools',        label: 'Pools',       icon: Waves,           shortcut: '8' },
+  { id: 'nfts',         label: 'NFTs',        icon: Image,           shortcut: '5' },
+  { id: 'gas',          label: 'Gas',         icon: Fuel,            shortcut: '6' },
+  { id: 'pools',        label: 'Pools',       icon: Waves,           shortcut: '7' },
+  { id: 'pnl',          label: 'PnL',         icon: TrendingUp,      shortcut: '8' },
   { id: 'alerts',       label: 'Alerts',      icon: Bell,            shortcut: '9' },
 ]
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'Portfolio',
+    label: 'Free',
     items: [
-      { id: 'dashboard',    label: 'Overview',     icon: LayoutDashboard, shortcut: '1' },
+      { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard, shortcut: '1' },
       { id: 'wallets',      label: 'Wallets',      icon: Wallet,          shortcut: '2' },
-      { id: 'portfolio',    label: 'Holdings',     icon: PieChart,        shortcut: '3' },
+      { id: 'portfolio',    label: 'Portfolio',     icon: PieChart,        shortcut: '3' },
       { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight,  shortcut: '4' },
-      { id: 'pnl',          label: 'PnL',          icon: TrendingUp,      shortcut: '5' },
-      { id: 'nfts',         label: 'NFTs',         icon: Image,           shortcut: '' },
-      { id: 'defi',         label: 'Positions',    icon: Layers,          shortcut: '' },
+      { id: 'nfts',         label: 'NFTs',         icon: Image,           shortcut: '5' },
+      { id: 'gas',          label: 'Gas Tracker',  icon: Fuel,            shortcut: '6' },
+      { id: 'pools',        label: 'Pools',        icon: Waves,           shortcut: '7' },
     ],
   },
   {
-    label: 'Strategy',
+    label: 'Pro',
     items: [
-      { id: 'dca',    label: 'DCA Planner', icon: RefreshCcw, shortcut: '6', badge: 'new' },
-      { id: 'goals',  label: 'Goals',       icon: Target,     shortcut: '7', badge: 'new' },
-      { id: 'pools',  label: 'Pools/Yield', icon: Waves,      shortcut: '8' },
-      { id: 'smart-allocator', label: 'Smart Allocator', icon: Sparkles, shortcut: '', badge: 'ai' },
-      { id: 'alerts', label: 'Alerts',      icon: Bell,       shortcut: '9' },
+      { id: 'pnl',              label: 'PnL',              icon: TrendingUp, shortcut: '8', pro: true },
+      { id: 'defi',             label: 'DeFi Positions',   icon: Layers,     shortcut: '',  pro: true },
+      { id: 'alerts',           label: 'Alerts',           icon: Bell,       shortcut: '9', pro: true },
+      { id: 'whales',           label: 'Whale Tracker',    icon: Zap,        shortcut: '',  pro: true },
+      { id: 'dca',              label: 'DCA Planner',      icon: RefreshCcw, shortcut: '',  pro: true },
+      { id: 'goals',            label: 'Goals',            icon: Target,     shortcut: '',  pro: true },
+      { id: 'smart-allocator',  label: 'Smart Allocator',  icon: Sparkles,   shortcut: '',  pro: true },
     ],
   },
 ]
@@ -76,6 +81,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains = [] }: SidebarProps) {
+  const { isPro } = usePlan()
+
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
@@ -125,6 +132,7 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
               {group.items.map((item) => {
                 const Icon = item.icon
                 const isActive = currentPage === item.id
+                const isLocked = item.pro && !isPro
                 return (
                   <button
                     key={item.id}
@@ -132,7 +140,8 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-100 text-left relative group"
                     style={{
                       background: isActive ? 'rgba(34,197,94,0.08)' : 'transparent',
-                      color: isActive ? '#0A0A0A' : '#737373',
+                      color: isActive ? '#0A0A0A' : isLocked ? '#B0B0B0' : '#737373',
+                      opacity: isLocked ? 0.75 : 1,
                     }}
                     onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F5F5F5' }}
                     onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
@@ -145,18 +154,16 @@ export function Sidebar({ currentPage, onNavigate, walletCount = 0, fundedChains
                       className={`flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-50 group-hover:opacity-75'}`}
                     />
                     <span className="flex-1 text-xs">{item.label}</span>
-                    {item.badge && (
+                    {item.pro && !isPro && (
                       <span
-                        className="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
-                        style={
-                          item.badge === 'ai'
-                            ? { background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }
-                            : item.badge === 'btc'
-                            ? { background: 'rgba(247,147,26,0.15)', color: '#F7931A', border: '1px solid rgba(247,147,26,0.2)' }
-                            : { background: 'rgba(98,126,234,0.15)', color: '#627EEA', border: '1px solid rgba(98,126,234,0.2)' }
-                        }
+                        className="text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(98,126,234,0.12) 0%, rgba(153,69,255,0.12) 100%)',
+                          color: '#627EEA',
+                          border: '1px solid rgba(98,126,234,0.2)',
+                        }}
                       >
-                        {item.badge}
+                        PRO
                       </span>
                     )}
                     {item.shortcut && (

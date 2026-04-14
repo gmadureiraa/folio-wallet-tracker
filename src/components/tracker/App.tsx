@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { exportPortfolioCSV } from '../../lib/export'
+import { ProFeatureGate, usePlan } from '../../lib/plan-guard'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
 import { Dashboard } from './pages/Dashboard'
@@ -134,8 +135,7 @@ function App() {
 
       // Hide after 1.5s
       setTimeout(() => setScanVisible(false), 1500)
-    } catch (err) {
-      console.error('Error fetching portfolios:', err)
+    } catch {
       setScanVisible(false)
     } finally {
       setPortfolioLoading(false)
@@ -226,6 +226,8 @@ function App() {
     if (allTokens.length > 0) exportPortfolioCSV(allTokens)
   }, [portfolios])
 
+  const { isPro } = usePlan()
+
   function renderPage() {
     switch (currentPage) {
       case 'dashboard':
@@ -239,23 +241,23 @@ function App() {
       case 'nfts':
         return <NFTs nfts={nfts} wallets={wallets} />
       case 'defi':
-        return <DeFiPositions positions={defiPositions} wallets={wallets} />
+        return <ProFeatureGate feature="DeFi Positions"><DeFiPositions positions={defiPositions} wallets={wallets} /></ProFeatureGate>
       case 'pnl':
-        return <PnL portfolios={portfolios} wallets={wallets} />
+        return <ProFeatureGate feature="PnL Analytics"><PnL portfolios={portfolios} wallets={wallets} /></ProFeatureGate>
       case 'alerts':
         return <Alerts prices={prices} />
       case 'whales':
-        return <WhaleTracker />
+        return <ProFeatureGate feature="Whale Tracker"><WhaleTracker /></ProFeatureGate>
       case 'gas':
         return <GasTracker gasEstimates={gasEstimates} loading={gasLoading} />
       case 'dca':
-        return <DCA portfolios={portfolios} priceMap={priceMap} prices={prices} />
+        return <ProFeatureGate feature="DCA Planner"><DCA portfolios={portfolios} priceMap={priceMap} prices={prices} /></ProFeatureGate>
       case 'goals':
-        return <Goals portfolios={portfolios} priceMap={priceMap} totalValue={totalValue} />
+        return <ProFeatureGate feature="Goals"><Goals portfolios={portfolios} priceMap={priceMap} totalValue={totalValue} /></ProFeatureGate>
       case 'pools':
         return <Pools yields={yields} protocols={protocols} loading={marketLoading} priceMap={priceMap} />
       case 'smart-allocator':
-        return <SmartAllocator portfolios={portfolios} priceMap={priceMap} />
+        return <ProFeatureGate feature="Smart Allocator"><SmartAllocator portfolios={portfolios} priceMap={priceMap} /></ProFeatureGate>
       default:
         return (
           <div className="flex items-center justify-center h-full">
@@ -285,7 +287,7 @@ function App() {
           lastUpdated={lastUpdated}
           onRefresh={() => { refetch(); fetchPortfolios() }}
           onAddWallet={handleOpenAddWallet}
-          onExport={portfolios.length > 0 ? handleExport : undefined}
+          onExport={isPro && portfolios.length > 0 ? handleExport : undefined}
         />
         <main className="flex-1 overflow-y-auto">
           {renderPage()}

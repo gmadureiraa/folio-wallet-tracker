@@ -13,8 +13,13 @@ import {
   Copy,
   Check,
   AlertTriangle,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
+import { usePlan } from "@/lib/plan-guard";
+import { useTheme } from "@/lib/theme";
 
 /* ────────────────────────────────────────── */
 /*  Types                                     */
@@ -32,30 +37,25 @@ interface TrackedWallet {
 /* ────────────────────────────────────────── */
 
 export default function SettingsPage() {
-  const [email, setEmail] = useState("");
-  const [walletAddress, setWalletAddress] = useState("");
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { plan, isPro, expiresAt } = usePlan();
+  const { theme, toggle: toggleTheme } = useTheme();
+
   const [wallets, setWallets] = useState<TrackedWallet[]>([]);
   const [lang, setLang] = useState<"en" | "pt">("en");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Load from localStorage
+  // Load from localStorage (same keys used by the tracker app)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const storedEmail = localStorage.getItem("folio_email") || "";
-    const storedWallet = localStorage.getItem("folio_wallet_address") || "";
-    const storedWallets = localStorage.getItem("folio_wallets");
+    const storedWallets = localStorage.getItem("folio-wallets");
     const storedLang = localStorage.getItem("folio_lang") as "en" | "pt";
-    const storedTheme = localStorage.getItem("folio_theme") as "light" | "dark";
 
-    setEmail(storedEmail);
-    setWalletAddress(storedWallet);
     if (storedWallets) {
       try { setWallets(JSON.parse(storedWallets)); } catch { /* ignore */ }
     }
     if (storedLang === "en" || storedLang === "pt") setLang(storedLang);
-    if (storedTheme === "light" || storedTheme === "dark") setTheme(storedTheme);
   }, []);
 
   // Save preferences
@@ -65,20 +65,19 @@ export default function SettingsPage() {
   };
 
   const saveTheme = (t: "light" | "dark") => {
-    setTheme(t);
-    localStorage.setItem("folio_theme", t);
+    // Use the real ThemeProvider toggle
+    if (theme !== t) toggleTheme();
   };
 
   const removeWallet = (id: string) => {
     const updated = wallets.filter((w) => w.id !== id);
     setWallets(updated);
-    localStorage.setItem("folio_wallets", JSON.stringify(updated));
+    localStorage.setItem("folio-wallets", JSON.stringify(updated));
   };
 
   const handleExport = () => {
     const data = {
-      email,
-      walletAddress,
+      email: user?.email ?? "",
       wallets,
       lang,
       theme,
@@ -93,13 +92,11 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDeleteAccount = () => {
-    localStorage.removeItem("folio_email");
-    localStorage.removeItem("folio_wallet_address");
-    localStorage.removeItem("folio_wallets");
+  const handleDeleteAccount = async () => {
+    localStorage.removeItem("folio-wallets");
     localStorage.removeItem("folio_lang");
-    localStorage.removeItem("folio_theme");
-    window.location.href = "/";
+    localStorage.removeItem("folio-theme");
+    await signOut();
   };
 
   const handleCopy = (text: string, key: string) => {
@@ -145,75 +142,85 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pb-16 space-y-6">
+        {/* ── Loading ── */}
+        {authLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 size={24} className="animate-spin text-gray-400" />
+          </div>
+        )}
+
         {/* ── Profile ── */}
-        <div className={cardClass}>
-          <p className={labelClass}>Profile</p>
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  localStorage.setItem("folio_email", e.target.value);
-                }}
-                placeholder="your@email.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:border-gray-400 transition-colors bg-white"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Wallet address</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={walletAddress}
-                  onChange={(e) => {
-                    setWalletAddress(e.target.value);
-                    localStorage.setItem("folio_wallet_address", e.target.value);
-                  }}
-                  placeholder="0x..."
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 font-mono placeholder:text-gray-300 outline-none focus:border-gray-400 transition-colors bg-white"
-                />
-                {walletAddress && (
-                  <button
-                    onClick={() => handleCopy(walletAddress, "wallet")}
-                    className="p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
-                    title="Copy address"
-                  >
-                    {copied === "wallet" ? (
-                      <Check size={14} className="text-green-500" />
-                    ) : (
-                      <Copy size={14} className="text-gray-400" />
-                    )}
-                  </button>
-                )}
+        {!authLoading && (
+          <div className={cardClass}>
+            <p className={labelClass}>Profile</p>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Email</label>
+                <p className="px-4 py-2.5 rounded-xl border border-gray-100 text-sm text-gray-900 bg-gray-50">
+                  {user?.email ?? "Not signed in"}
+                </p>
               </div>
+              {user?.created_at && (
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Member since</label>
+                  <p className="px-4 py-2.5 rounded-xl border border-gray-100 text-sm text-gray-500 bg-gray-50">
+                    {new Date(user.created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
 
         {/* ── Subscription ── */}
-        <div className={cardClass}>
-          <p className={labelClass}>Subscription</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Free Plan</p>
-              <p className="text-xs text-gray-400 mt-0.5">1 wallet, basic tracking</p>
+        {!authLoading && (
+          <div className={cardClass}>
+            <p className={labelClass}>Subscription</p>
+            <div className="flex items-center justify-between">
+              <div>
+                {isPro ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-gray-900">Pro Plan</p>
+                      <CheckCircle size={14} className="text-green-500" />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {expiresAt
+                        ? `Expires ${new Date(expiresAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}`
+                        : "Active"}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-gray-900">Free Plan</p>
+                    <p className="text-xs text-gray-400 mt-0.5">1 wallet, basic tracking</p>
+                  </>
+                )}
+              </div>
+              {!isPro && (
+                <Link
+                  href="/app/plan"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors no-underline"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(98,126,234,0.08) 0%, rgba(153,69,255,0.08) 100%)",
+                    color: "#627EEA",
+                    border: "1px solid rgba(98,126,234,0.15)",
+                  }}
+                >
+                  Upgrade to Pro
+                </Link>
+              )}
             </div>
-            <Link
-              href="/app/plan"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors no-underline"
-              style={{
-                background: "linear-gradient(135deg, rgba(98,126,234,0.08) 0%, rgba(153,69,255,0.08) 100%)",
-                color: "#627EEA",
-                border: "1px solid rgba(98,126,234,0.15)",
-              }}
-            >
-              Upgrade to Pro
-            </Link>
           </div>
-        </div>
+        )}
 
         {/* ── Tracked wallets ── */}
         <div className={cardClass}>

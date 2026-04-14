@@ -8,8 +8,12 @@ import {
   Wallet,
   Sparkles,
   CheckCircle,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
+import { usePlan } from "@/lib/plan-guard";
 
 /* ────────────────────────────────────────── */
 /*  Types & constants                         */
@@ -23,11 +27,11 @@ type Step =
   | "verify"
   | "success";
 
-type Plan = "monthly" | "yearly";
+type PlanChoice = "monthly" | "yearly";
 type Token = "USDT" | "USDC";
 type Network = "ethereum" | "polygon" | "arbitrum" | "bsc" | "base";
 
-const PLAN_PRICES: Record<Plan, { amount: string; label: string; save?: string }> = {
+const PLAN_PRICES: Record<PlanChoice, { amount: string; label: string; save?: string }> = {
   monthly: { amount: "0.99", label: "$0.99 / month" },
   yearly: { amount: "9.99", label: "$9.99 / year", save: "Save 17%" },
 };
@@ -87,12 +91,17 @@ const PAYMENT_WALLET =
 
 export default function PlanPage() {
   const [step, setStep] = useState<Step>("select-plan");
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [plan, setPlan] = useState<PlanChoice | null>(null);
   const [token, setToken] = useState<Token | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const [txHash, setTxHash] = useState("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
+  const { session } = useAuth();
+  const { isPro, refetch: refetchPlan } = usePlan();
 
   const selectedNetwork = NETWORKS.find((n) => n.id === network);
   const tokenAddress =
@@ -109,7 +118,7 @@ export default function PlanPage() {
     setTimeout(() => { setCopiedKey(null); setToast(null); }, 1500);
   };
 
-  const handleSelectPlan = (p: Plan) => {
+  const handleSelectPlan = (p: PlanChoice) => {
     setPlan(p);
     setStep("select-token");
   };
@@ -124,9 +133,41 @@ export default function PlanPage() {
     setStep("show-details");
   };
 
-  const handleVerify = () => {
-    // TODO: Send txHash to backend for verification
-    setStep("success");
+  const handleVerify = async () => {
+    if (!txHash.trim() || !network || !token || !plan) return;
+    setVerifying(true);
+    setVerifyError(null);
+
+    try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+
+      const res = await fetch("/api/verify-payment", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          txHash: txHash.trim(),
+          chain: network,
+          token,
+          amount: parseFloat(PLAN_PRICES[plan].amount),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        refetchPlan();
+        setStep("success");
+      } else {
+        setVerifyError(data.error || "Payment verification failed. Please check the transaction hash and try again.");
+      }
+    } catch {
+      setVerifyError("Network error. Please try again.");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   const handleReset = () => {
@@ -135,6 +176,7 @@ export default function PlanPage() {
     setToken(null);
     setNetwork(null);
     setTxHash("");
+    setVerifyError(null);
   };
 
   /* ── Shared styles ── */
@@ -178,8 +220,28 @@ export default function PlanPage() {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pb-16">
+        {/* ── Already Pro ── */}
+        {isPro && step === "select-plan" && (
+          <div className="text-center py-12 space-y-4">
+            <div className="w-14 h-14 rounded-full bg-green-50 border border-green-100 flex items-center justify-center mx-auto">
+              <CheckCircle size={28} className="text-green-500" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight font-serif text-gray-900">
+              Pro plan active
+            </h2>
+            <p className="text-sm text-gray-400 max-w-xs mx-auto">
+              You have full access to all Pro features. Thank you for your support!
+            </p>
+            <div className="pt-4">
+              <Link href="/app" className={btnPrimary}>
+                Go to app
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* ── Step: Select Plan ── */}
-        {step === "select-plan" && (
+        {!isPro && step === "select-plan" && (
           <div className="space-y-4">
             <p className="text-sm text-gray-500 mb-6">
               Unlock unlimited wallets, advanced analytics, and priority
@@ -495,6 +557,13 @@ export default function PlanPage() {
               Paste your transaction hash so we can verify the payment.
             </p>
 
+            {verifyError && (
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-100">
+                <AlertCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-red-600">{verifyError}</p>
+              </div>
+            )}
+
             <input
               type="text"
               placeholder="0x..."
@@ -505,17 +574,26 @@ export default function PlanPage() {
 
             <button
               onClick={handleVerify}
-              disabled={!txHash.trim()}
+              disabled={!txHash.trim() || verifying}
               className={`${btnPrimary} ${
-                !txHash.trim() ? "opacity-40 pointer-events-none" : ""
+                !txHash.trim() || verifying ? "opacity-40 pointer-events-none" : ""
               }`}
             >
-              <Check size={14} />
-              Verify payment
+              {verifying ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <Check size={14} />
+                  Verify payment
+                </>
+              )}
             </button>
 
             <button
-              onClick={() => setStep("show-details")}
+              onClick={() => { setStep("show-details"); setVerifyError(null); }}
               className={`${btnSecondary} w-full`}
             >
               <ArrowLeft size={14} />
